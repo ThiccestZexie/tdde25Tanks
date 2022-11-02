@@ -34,6 +34,7 @@ current_map         = maps.map0
 game_objects_list   = []
 tanks_list          = []
 flags_list          = []
+bases_list          = []
 
 #-- Resize the screen to the size of the current level
 screen = pygame.display.set_mode(current_map.rect().size)
@@ -59,7 +60,6 @@ for x in range(0, current_map.width):
             # Create a "Box" using the box_type, aswell as the x,y coordinates,
             # and the pymunk space
             box = gameobjects.get_box_with_type(x, y, box_type, space)
-            game_objects_list.append(box)
 
 
 #-- Create the tanks
@@ -72,6 +72,18 @@ for i in range(0, len(current_map.start_positions)):
     # Add the tank to the list of tanks
     tanks_list.append(tank)
     game_objects_list.append(tank)
+
+ #-- Create the bases
+for i in range(0,len(current_map.start_positions)):   
+    pos_base = current_map.start_positions[i]
+    bases = gameobjects.GameVisibleObject(pos_base[0], pos_base[1], images.bases[i])
+    game_objects_list.append(bases)
+
+ #-- Create out of bound walls
+body = pymunk.Body(body_type=pymunk.Body.STATIC)
+walls = pymunk.Segment(body, (0,current_map.height), (0, current_map.width), 0)
+walls_list.append(walls)   
+
 
 #<INSERT CREATE FLAG>
 #-- Create the flag
@@ -126,12 +138,6 @@ while running:
 
             elif event.key == K_RIGHT:
                 tanks_list[0].stop_turning()    
-    
-
-
-       
-
-           
 
     #-- Update physics
     if skip_update == 0:
@@ -162,9 +168,22 @@ while running:
     #Tank update
     for tank in tanks_list:
         tank.update_screen(screen)
+    
+    #Base update
+    for bases in bases_list:
+        bases.update_screen(screen)
 
-    #Flag update    
+    #Flag update
+    for tanks in tanks_list:
+        tanks.try_grab_flag(flag)
+
     flag.update_screen(screen)
+    #Tank has won - only works with player tank
+
+    if tanks_list[0].has_won() == True:
+            break
+
+    
 
     #   Redisplay the entire screen (see double buffer technique)
     pygame.display.flip()
