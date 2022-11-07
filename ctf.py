@@ -60,6 +60,7 @@ for x in range(0, current_map.width):
             # Create a "Box" using the box_type, aswell as the x,y coordinates,
             # and the pymunk space
             box = gameobjects.get_box_with_type(x, y, box_type, space)
+            game_objects_list.append(box)
 
 
 #-- Create the tanks
@@ -81,8 +82,11 @@ for i in range(0,len(current_map.start_positions)):
 
  #-- Create out of bound walls
 body = pymunk.Body(body_type=pymunk.Body.STATIC)
-walls = pymunk.Segment(body, (0,current_map.height), (0, current_map.width), 0)
-walls_list.append(walls)   
+walls  = [pymunk.Segment(body,(0,0),(0, current_map.width),0),
+            pymunk.Segment(body,(0, 0), (current_map.height, 0), 0),
+            pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
+            pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
+space.add(walls)
 
 
 #<INSERT CREATE FLAG>
