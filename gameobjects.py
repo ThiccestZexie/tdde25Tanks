@@ -221,17 +221,20 @@ class Tank(GamePhysicsObject):
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
-        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space)
+        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, 0)
         return bullet
 
 
 class Bullet(GamePhysicsObject):
     
     NORMAL_MAX_SPEED = 3
-    ACCELERATION = 5
-    def __init__(self, x,y, orientation, sprite, space):
+    def __init__(self, x,y, orientation, sprite, space, mass):
         super().__init__(x,y, orientation, sprite, space, True)
-        self.body.velocity = pymunk.Vec2d(0, 10).rotated(self.body.velocity.angle)
+        self.body.velocity = pymunk.Vec2d(0,7).rotated(self.body.velocity.angle)
+        self.body.mass = 0.1
+    def update_screen(self, screen):
+        super().update_screen(screen)
+        self.body.velocity = pymunk.Vec2d(0, 7)
 
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """

@@ -149,7 +149,7 @@ while running:
 
     #-- Update physics
     if skip_update == 0:
-        # Loop over all the game objects and update their speed in function of their
+        #  Loop over all the game objects and update their speed in function of their
         # acceleration.
         for obj in game_objects_list:
             obj.update()
@@ -174,6 +174,7 @@ while running:
         obj.update_screen(screen)
     # Update to display bullets
     for bullet in bullet_list:
+        bullet.update()
         bullet.update_screen(screen)
     #Tank update
     for tank in tanks_list:
