@@ -34,6 +34,7 @@ current_map         = maps.map0
 game_objects_list   = []
 tanks_list          = []
 flags_list          = []
+bullet_list         = []
 bases_list          = []
 
 #-- Resize the screen to the size of the current level
@@ -126,6 +127,9 @@ while running:
 
             elif event.key == K_RIGHT:
                 tanks_list[0].turn_right()
+            elif event.key == K_SPACE:
+                bullet_list.append(tanks_list[0].shoot(space))
+                
             
 
         if event.type == KEYUP:
@@ -168,7 +172,9 @@ while running:
     # Update the display of the game objects on the screen
     for obj in game_objects_list:
         obj.update_screen(screen)
-
+    # Update to display bullets
+    for bullet in bullet_list:
+        bullet.update_screen(screen)
     #Tank update
     for tank in tanks_list:
         tank.update_screen(screen)

@@ -50,7 +50,6 @@ class GameObject:
         screen.blit(sprite, p) # Copy the sprite on the screen
 
 
-
 class GamePhysicsObject(GameObject):
     """ This class extends GameObject and it is used for objects which have a
         physical shape (such as tanks and boxes). This class handle the physical
@@ -121,13 +120,14 @@ class GamePhysicsObject(GameObject):
             pygame.draw.lines(screen, pygame.color.THECOLORS["red"], False, ps, 1)
 
 
-
 def clamp(min_max, value):
     """ Convenient helper function to bound a value to a specific interval. """
     return min(max(-min_max, value), min_max)
 
 
 class Tank(GamePhysicsObject):
+
+
     """ Extends GamePhysicsObject and handles aspects which are specific to our tanks. """
 
     # Constant values for the tank, acessed like: Tank.ACCELERATION
@@ -141,7 +141,7 @@ class Tank(GamePhysicsObject):
         # Define variable used to apply motion to the tanks
         self.acceleration = 0 # 1 forward, 0 for stand still, -1 for backwards
         self.rotation = 0 # 1 clockwise, 0 for no rotation, -1 counter clockwise
-
+        self.space = space
 
         self.flag                 = None                      # This variable is used to access the flag object, if the current tank is carrying the flag
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
@@ -219,10 +219,19 @@ class Tank(GamePhysicsObject):
         """ Check if the current tank has won (if it is has the flag and it is close to its start position). """
         return self.flag != None and (self.start_position - self.body.position).length < 0.2
 
-    def shoot(self, space):
+    def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
+        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space)
+        return bullet
 
-        return
+
+class Bullet(GamePhysicsObject):
+    
+    NORMAL_MAX_SPEED = 3
+    ACCELERATION = 5
+    def __init__(self, x,y, orientation, sprite, space):
+        super().__init__(x,y, orientation, sprite, space, True)
+        self.body.velocity = pymunk.Vec2d(0, 10).rotated(self.body.velocity.angle)
 
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """
