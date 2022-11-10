@@ -146,7 +146,7 @@ class Tank(GamePhysicsObject):
         self.flag                 = None                      # This variable is used to access the flag object, if the current tank is carrying the flag
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
-
+        self.shape.collision_type = 2
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
@@ -221,20 +221,19 @@ class Tank(GamePhysicsObject):
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
-        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, 0)
+        bullet = Bullet(self.body.position[0], self.body.position[1] +0.001, math.degrees(self.body.angle), images.bullet, space, 0)
         return bullet
 
 
 class Bullet(GamePhysicsObject):
-    
-    NORMAL_MAX_SPEED = 3
+    NORMAL_MAX_SPEED = 7    
     def __init__(self, x,y, orientation, sprite, space, mass):
         super().__init__(x,y, orientation, sprite, space, True)
-        self.body.velocity = pymunk.Vec2d(0,7).rotated(self.body.velocity.angle)
-        self.body.mass = 0.1
+        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #was self.velocity.body.angle now it ricochetes 
+        self.shape.collision_type = 1   
     def update_screen(self, screen):
         super().update_screen(screen)
-        self.body.velocity = pymunk.Vec2d(0, 7)
+        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #mby not .rotated part it leads to grico
 
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """
@@ -278,3 +277,5 @@ class Flag(GameVisibleObject):
     def __init__(self, x, y):
         self.is_on_tank   = False
         super().__init__(x, y,  images.flag)
+
+
