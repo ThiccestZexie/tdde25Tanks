@@ -3,6 +3,7 @@ from pygame.locals import *
 from pygame.color import *
 import pymunk
 
+
 #----- Initialisation -----#
 
 #-- Initialise the display
@@ -111,16 +112,21 @@ def collision_handler():
     handler.pre_solve = collision_bullet_tank
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
-    print("hi")
-   
-    #game_objects_list.remove(arb.shapes[1])
-  #  arb.shapes[1] = pymunk.Poly(None, )
-    arb.shapes[1].parent = arb.shapes[1]
-    game_objects_list.remove(arb.shapes[1].parent)
-    space.remove(arb.shapes[1], arb.shapes[1].body)
+    """TODO Make tank drop flag"""
+    bullet = arb.shapes[0]
+    tank = arb.shapes[1]
+
+    
+    tank.body.position = tank.parent.start_position
+    if tank.parent.flag == flag: 
+        gameobjects.Tank.drop_flag(tank.parent, flag)
+    if bullet.parent in game_objects_list:
+        bullet_list.remove(bullet.parent)
+        game_objects_list.remove(bullet.parent)
+    space.remove(bullet, bullet.body) 
     return False
 
-player_tank = 3 #Index of whcih tank the player controlls 
+player_tank = 0 #Index of whcih tank the player controlls 
 
 while running:
     #-- Handle the events
@@ -184,7 +190,7 @@ while running:
     for obj in game_objects_list:
         obj.post_update()
     #-- Collision handeling
-    collision_handler()
+    #collision_handler()
 
     #-- Update Display
     # Display the background on the screen

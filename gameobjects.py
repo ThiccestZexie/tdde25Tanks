@@ -147,6 +147,7 @@ class Tank(GamePhysicsObject):
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
         self.shape.collision_type = 2
+        self.shape.parent = self
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
@@ -226,11 +227,13 @@ class Tank(GamePhysicsObject):
 
 
 class Bullet(GamePhysicsObject):
+    """TODO Define owner of bullet,"""
     NORMAL_MAX_SPEED = 7    
     def __init__(self, x,y, orientation, sprite, space, mass):
         super().__init__(x,y, orientation, sprite, space, True)
         self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #was self.velocity.body.angle now it ricochetes 
         self.shape.collision_type = 1   
+        self.shape.parent = self
     def update_screen(self, screen):
         super().update_screen(screen)
         self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #mby not .rotated part it leads to grico
