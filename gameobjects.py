@@ -226,6 +226,11 @@ class Tank(GamePhysicsObject):
         bullet.owner = owner
         bullet.parent = bullet
         return bullet
+    def drop_flag(self, flag):
+           self.flag = None
+           flag.is_on_tank = False
+           flag.orientation = 0
+           self.max_speed = Tank.NORMAL_MAX_SPEED 
 
 
 class Bullet(GamePhysicsObject):

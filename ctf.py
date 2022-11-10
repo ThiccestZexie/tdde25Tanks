@@ -106,7 +106,7 @@ def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
     return flag
 
-
+#Creating all the objects
 create_grass()
 create_boxes()
 create_tanks()
