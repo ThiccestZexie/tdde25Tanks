@@ -216,19 +216,18 @@ class Tank(GamePhysicsObject):
                 flag.is_on_tank     = True
                 self.max_speed  = Tank.FLAG_MAX_SPEED
 
-
     def has_won(self):
         """ Check if the current tank has won (if it is has the flag and it is close to its start position). """
-        return self.flag != None and (self.start_position - self.body.position).length < 0.2
+        return self.flag != None and (self.start_position - self.body.position).length < 0.5
 
 
-    def shoot(self,space, owner):
+    def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
+       
+        
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
         bullet.parent = bullet
         return bullet
-
-        
     def drop_flag(self, flag):
            self.flag = None
            flag.is_on_tank = False
@@ -291,4 +290,5 @@ class Flag(GameVisibleObject):
     def __init__(self, x, y):
         self.is_on_tank   = False
         super().__init__(x, y,  images.flag)
+
 

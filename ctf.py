@@ -169,7 +169,7 @@ while running:
             elif event.key == K_RIGHT:
                 tanks_list[player_tank].turn_right()
             elif event.key == K_SPACE:
-                bullet_list.append(tanks_list[player_tank].shoot(space, tanks_list[player_tank].name))
+                bullet_list.append(tanks_list[player_tank].shoot(space))
                 
             
 
@@ -228,12 +228,14 @@ while running:
     #Flag update
     for tanks in tanks_list:
         tanks.try_grab_flag(flag)
-
-    flag.update_screen(screen)
-    #Tank has won - only works with player tank
+        
     for tank in tanks_list:
         if tank.has_won() == True:
-            break
+            running = False
+    flag.update_screen(screen)
+    #Tank has won - only works with player tank
+
+
 
     #   Redisplay the entire screen (see double buffer technique)
     pygame.display.flip()
