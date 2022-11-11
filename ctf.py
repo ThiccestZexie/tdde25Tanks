@@ -140,6 +140,33 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank
 
+def collision_bullet_woodbox(arb,space,data):
+    """TODO make the sprite disappear"""
+    bullet = arb.shapes[0]
+    box = arb.shapes[1]
+    # gameobjects.remove(box)  
+    if bullet in game_objects_list:
+        bullet_list.remove(bullet)
+        game_objects_list.remove(bullet)
+
+    space.remove(bullet, bullet.body) 
+    space.remove(box, box.body)
+    game_objects_list.remove(box)
+    return False
+    
+    # gameobjects.remove(box)
+
+handler = space.add_collision_handler(1,3)
+handler.pre_solve = collision_bullet_woodbox
+
+def collision_bullet_another_box(arb,space,data):
+    bullet = arb.shapes[0]
+    wood_box = arb.shapes[1]
+    
+    if bullet in game_objects_list:
+        bullet_list.remove(bullet)
+        game_objects_list.remove(bullet)
+    space.remove(bullet, bullet.body) 
 player_tank = 0 #Index of whcih tank the player controlls 
 
 while running:
