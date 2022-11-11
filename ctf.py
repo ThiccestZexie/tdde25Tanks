@@ -74,8 +74,7 @@ def create_tanks():
         # Get the starting position of the tank "i"
         pos = current_map.start_positions[i]
         # Create the tank, images.tanks contains the image representing the tank
-        tank = gameobjects.Tank(pos[0], pos[1], pos[2], images.tanks[i], space)
-        tank.name = i
+        tank = gameobjects.Tank(pos[0], pos[1], pos[2], images.tanks[i], space, i) # i = identifier
         # Add the tank to the list of tanks
         tanks_list.append(tank)
         game_objects_list.append(tank)
@@ -121,20 +120,25 @@ running = True
 
 skip_update = 0
 
-#-- create hanfler 
+#-- Create collision handlers 
    
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
-    """TODO Make tank drop flag"""
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
-    if bullet.owner != tank.name:
-        tank.body.position = tank.parent.start_position
-        if tank.parent.flag == flag: 
-            gameobjects.Tank.drop_flag(tank.parent, flag)
-        if bullet in game_objects_list:
-            bullet_list.remove(bullet)
-            game_objects_list.remove(bullet)
-        space.remove(bullet, bullet.body) 
+    print(tank.name)
+    print(bullet.name)
+    try:
+           
+            tank.body.position = tank.body.start_position
+            if tank.parent.flag == flag: 
+                gameobjects.Tank.drop_flag(tank.parent, flag)
+            if bullet in game_objects_list:
+                print("Hi")
+                bullet_list.remove(bullet.parent)
+                game_objects_list.remove(bullet.parent)
+            space.remove(bullet, bullet.body) 
+    except AttributeError:
+        1
     return False
 
 handler = space.add_collision_handler(1,2)
@@ -144,29 +148,49 @@ def collision_bullet_woodbox(arb,space,data):
     """TODO make the sprite disappear"""
     bullet = arb.shapes[0]
     box = arb.shapes[1]
-    # gameobjects.remove(box)  
-    if bullet in game_objects_list:
-        bullet_list.remove(bullet)
-        game_objects_list.remove(bullet)
-
-    space.remove(bullet, bullet.body) 
-    space.remove(box, box.body)
-    game_objects_list.remove(box)
+    try:
+        if bullet in game_objects_list:
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(bullet.parent)
+        space.remove(bullet, bullet.body) 
+        space.remove(box, box.body)
+        game_objects_list.remove(box)
+    except ValueError:
+        1
     return False
     
-    # gameobjects.remove(box)
-
 handler = space.add_collision_handler(1,3)
 handler.pre_solve = collision_bullet_woodbox
 
-def collision_bullet_another_box(arb,space,data):
+def collision_bullet_stonebox(arb,space,data):
     bullet = arb.shapes[0]
-    wood_box = arb.shapes[1]
+    box = arb.shapes[1]
+    try:
+        if bullet in game_objects_list:
+            bullet_list.remove(bullet)
+            game_objects_list.remove(bullet)
+        space.remove(bullet, bullet.body) 
+    except ValueError:
+        1
+    return False
+
+handler = space.add_collision_handler(1,4)
+handler.pre_solve = collision_bullet_stonebox
+
+def collision_bullet_metalbox(arb,space,data):
+    bullet = arb.shapes[0]
+    box = arb.shapes[1]
+    try:
+        if bullet in game_objects_list:
+            bullet_list.remove(bullet)
+            game_objects_list.remove(bullet)
+        space.remove(bullet, bullet.body) 
+    except ValueError:
+        1
+    return False
+handler = space.add_collision_handler(1,5)
+handler.pre_solve = collision_bullet_metalbox
     
-    if bullet in game_objects_list:
-        bullet_list.remove(bullet)
-        game_objects_list.remove(bullet)
-    space.remove(bullet, bullet.body) 
 player_tank = 0 #Index of whcih tank the player controlls 
 
 while running:
@@ -221,7 +245,7 @@ while running:
         # acceleration.
         for obj in game_objects_list:
             obj.update()
-        skip_update = 2
+        skip_update = 5
     else:
         skip_update -= 1
 
@@ -231,8 +255,6 @@ while running:
     #   Update object that depends on an other object position (for instance a flag)
     for obj in game_objects_list:
         obj.post_update()
-    #-- Collision handeling
-    #collision_handler()
 
     #-- Update Display
     # Display the background on the screen

@@ -136,8 +136,12 @@ class Tank(GamePhysicsObject):
     NORMAL_MAX_SPEED = 2.0
     FLAG_MAX_SPEED = NORMAL_MAX_SPEED * 0.5
 
-    def __init__(self, x, y, orientation, sprite, space):
+    def __init__(self, x, y, orientation, sprite, space, name):
         super().__init__(x, y, orientation, sprite, space, True)
+        #Define variables used for collision
+        self.shape.collision_type = 2
+        self.name = name
+        self.shape.parent = self
         # Define variable used to apply motion to the tanks
         self.acceleration = 0 # 1 forward, 0 for stand still, -1 for backwards
         self.rotation = 0 # 1 clockwise, 0 for no rotation, -1 counter clockwise
@@ -145,9 +149,7 @@ class Tank(GamePhysicsObject):
         self.flag                 = None                      # This variable is used to access the flag object, if the current tank is carrying the flag
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
-        self.shape.collision_type = 2
-        self.shape.parent = self
-        self.name = ""
+ 
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
@@ -223,10 +225,7 @@ class Tank(GamePhysicsObject):
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
-       
-        
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
-        bullet.parent = bullet
         return bullet
     def drop_flag(self, flag):
            self.flag = None
@@ -242,8 +241,8 @@ class Bullet(GamePhysicsObject):
         super().__init__(x,y, orientation, sprite, space, True)
         self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #was self.velocity.body.angle now it ricochetes 
         self.shape.collision_type = 1   
-        self.shape.parent = self
         self.owner = owner
+        self.shape.parent = self
     def update_screen(self, screen):
         super().update_screen(screen)
         self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #mby not .rotated part it leads to grico
