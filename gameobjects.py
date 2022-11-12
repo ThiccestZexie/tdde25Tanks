@@ -242,6 +242,7 @@ class Bullet(GamePhysicsObject):
         self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #was self.velocity.body.angle now it ricochetes 
         self.shape.collision_type = 1   
         self.owner = owner
+        self.sprite = sprite
         self.shape.parent = self
     def update_screen(self, screen):
         super().update_screen(screen)

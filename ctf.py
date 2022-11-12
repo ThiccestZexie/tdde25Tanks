@@ -122,39 +122,17 @@ skip_update = 0
 
 #-- Create collision handlers 
    
-def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
-    bullet = arb.shapes[0]
-    tank = arb.shapes[1]
-    print(tank.name)
-    print(bullet.name)
-    try:
-           
-            tank.body.position = tank.body.start_position
-            if tank.parent.flag == flag: 
-                gameobjects.Tank.drop_flag(tank.parent, flag)
-            if bullet in game_objects_list:
-                print("Hi")
-                bullet_list.remove(bullet.parent)
-                game_objects_list.remove(bullet.parent)
-            space.remove(bullet, bullet.body) 
-    except AttributeError:
-        1
-    return False
-
-handler = space.add_collision_handler(1,2)
-handler.pre_solve = collision_bullet_tank
 
 def collision_bullet_woodbox(arb,space,data):
     """TODO make the sprite disappear"""
     bullet = arb.shapes[0]
     box = arb.shapes[1]
     try:
-        if bullet in game_objects_list:
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            space.remove(box, box.body)
             bullet_list.remove(bullet.parent)
-            game_objects_list.remove(bullet.parent)
-        space.remove(bullet, bullet.body) 
-        space.remove(box, box.body)
-        game_objects_list.remove(box)
+            game_objects_list.remove(box.parent)
     except ValueError:
         1
     return False
@@ -166,10 +144,10 @@ def collision_bullet_stonebox(arb,space,data):
     bullet = arb.shapes[0]
     box = arb.shapes[1]
     try:
-        if bullet in game_objects_list:
-            bullet_list.remove(bullet)
-            game_objects_list.remove(bullet)
-        space.remove(bullet, bullet.body) 
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(bullet.parent)
     except ValueError:
         1
     return False
@@ -181,15 +159,39 @@ def collision_bullet_metalbox(arb,space,data):
     bullet = arb.shapes[0]
     box = arb.shapes[1]
     try:
-        if bullet in game_objects_list:
-            bullet_list.remove(bullet)
-            game_objects_list.remove(bullet)
-        space.remove(bullet, bullet.body) 
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(bullet.parent)
+        
     except ValueError:
         1
     return False
+    
 handler = space.add_collision_handler(1,5)
 handler.pre_solve = collision_bullet_metalbox
+
+def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
+    bullet = arb.shapes[0]
+    tank = arb.shapes[1]
+    try: 
+        if tank.parent.name != bullet.parent.owner:
+            tank.body.position = tank.parent.start_position
+            if tank.parent.flag == flag: 
+                gameobjects.Tank.drop_flag(tank.parent, flag)
+            if bullet or bullet.parent in game_objects_list:
+                space.remove(bullet, bullet.body)
+                bullet_list.remove(bullet.parent)
+                game_objects_list.remove(bullet.parent)
+
+    except AttributeError:
+        1
+    except ValueError: 
+        1
+    return False
+
+handler = space.add_collision_handler(1,2)
+handler.pre_solve = collision_bullet_tank
     
 player_tank = 0 #Index of whcih tank the player controlls 
 
@@ -199,7 +201,6 @@ while running:
         # Check if we receive a QUIT event (for instance, if the user press the
         # close button of the wiendow) or if the user press the escape key.
         
-        #Tank[0] is the player tank
         if event.type == QUIT:
             running = False
         
@@ -209,7 +210,6 @@ while running:
 
             elif event.key == K_UP:
                 tanks_list[player_tank].accelerate() 
-                tanks_list[2].accelerate()
 
             elif event.key == K_DOWN:
                 tanks_list[player_tank].decelerate()
