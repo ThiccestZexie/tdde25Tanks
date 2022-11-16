@@ -133,7 +133,7 @@ def collision_bullet_stonebox(arb,space,data):
     bullet = arb.shapes[0]
     box = arb.shapes[1]
     
-    if bullet or bullet.parent in bullet_list:
+    if bullet and bullet.parent in bullet_list:
         space.remove(bullet, bullet.body) 
         bullet_list.remove(bullet.parent)
 

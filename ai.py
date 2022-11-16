@@ -48,7 +48,7 @@ class Ai:
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
         self.update_grid_pos()
-        self.get_tile_neighbors(self.grid_pos)
+        self.find_shortest_path(0)
         pass # To be implemented
 
     def maybe_shoot(self):
@@ -64,18 +64,23 @@ class Ai:
         while True:
             yield
         
-    def find_shortest_path(self):
+    def find_shortest_path(self, b):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.
         """
         # To be implemented
-        shortest_path = []
+        if b < 10:
+            b += 1
+            shortest_path = []
+            a = self.get_tile_neighbors(self.grid_pos)
+            return self.find_shortest_path(b)
         return deque(shortest_path)
             
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,
             return the position of our home base.
         """
+
         if self.tank.flag != None:
             x, y = self.tank.start_position
         else:
@@ -115,12 +120,10 @@ class Ai:
         for coord in range(4):
             if self.filter_tile_neighbors(neighbors[coord]):
                 filtered_neighbors.append(neighbors[coord])
-        print(filtered_neighbors)
         return filtered_neighbors
 
     def filter_tile_neighbors (self, coord):
-        """TODO filtr coords for grass"""
-        print("hi")
+        """TODO use MAX_X and MAX_Y"""
         if 0 <= coord[0] < self.currentmap.width:
             if 0 <= coord[1] < self.currentmap.height:
                 if not self.currentmap.boxAt(coord[0], coord[1]):
