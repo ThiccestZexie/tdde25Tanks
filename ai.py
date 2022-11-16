@@ -47,6 +47,8 @@ class Ai:
 
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
+        self.update_grid_pos()
+        self.get_tile_neighbors(self.grid_pos)
         pass # To be implemented
 
     def maybe_shoot(self):
@@ -103,11 +105,25 @@ class Ai:
             A bordering square is only considered accessible if it is grass
             or a wooden box.
         """
-        self.get_tile_of_position()
         neighbors = [] # Find the coordinates of the tiles' four neighbors
-        return filter(self.filter_tile_neighbors, neighbors)
+        neighbors.append(Vec2d(coord_vec + (1,0)))
+        neighbors.append(Vec2d(coord_vec + (-1,0)))
+        neighbors.append(Vec2d(coord_vec + (0,-1)))
+        neighbors.append(Vec2d(coord_vec + (0,1)))
+
+        filtered_neighbors = []
+        for coord in range(4):
+            if self.filter_tile_neighbors(neighbors[coord]):
+                filtered_neighbors.append(neighbors[coord])
+        print(filtered_neighbors)
+        return filtered_neighbors
 
     def filter_tile_neighbors (self, coord):
-        return True
+        """TODO filtr coords for grass"""
+        print("hi")
+        if 0 <= coord[0] < self.currentmap.width:
+            if 0 <= coord[1] < self.currentmap.height:
+                if not self.currentmap.boxAt(coord[0], coord[1]):
+                    return True
 
 SimpleAi = Ai # Legacy
