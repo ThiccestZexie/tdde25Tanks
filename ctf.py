@@ -29,12 +29,16 @@ import maps
 FRAMERATE = 50
 
 #-- Variables
+#   Cooldown for tankshots
+cooldown_tracker = 0
+player_tank = 0
 #   Define the current level
 current_map         = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
 flags_list          = []
+ai_list             = []
 bullet_list         = []
 bases_list          = []
 
@@ -78,6 +82,11 @@ def create_tanks():
         # Add the tank to the list of tanks
         tanks_list.append(tank)
         game_objects_list.append(tank)
+    for i in range(0, len(current_map.start_positions)):
+            inst_ai = ai.Ai(tank,game_objects_list, tanks_list, space, current_map)
+            ai_list.append(inst_ai)
+    ai_list.pop(player_tank)
+    
 
 #-- Create the bases
 def create_bases():
@@ -102,117 +111,8 @@ def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
     return flag
 
-#Creating all the objects
-
-
-#----- Main Loop -----#
-def main_loop():
-    running = True 
-    skip_update = 0
-    
-    while running:
-        #-- Handle the events
-        for event in pygame.event.get():
-            # Check if we receive a QUIT event (for instance, if the user press the
-            # close button of the wiendow) or if the user press the escape key.
-            
-            if event.type == QUIT:
-                running = False
-            
-            if event.type ==  KEYDOWN:
-                if event.key == K_ESCAPE:
-                    running = False
-
-                elif event.key == K_UP:
-                    tanks_list[player_tank].accelerate() 
-                    for tanks in tanks_list:
-                        tanks.accelerate()
-
-                elif event.key == K_DOWN:
-                    tanks_list[player_tank].decelerate()
-
-                elif event.key == K_LEFT:
-                    tanks_list[player_tank].turn_left()
-
-                elif event.key == K_RIGHT:
-                    tanks_list[player_tank].turn_right()
-                elif event.key == K_SPACE:
-                    bullet_list.append(tanks_list[player_tank].shoot(space))
-                    
-                
-
-            if event.type == KEYUP:
-                if event.key == K_UP:
-                    tanks_list[player_tank].stop_moving() 
-                    tanks_list[player_tank].stop_turning()
-
-                elif event.key == K_DOWN:
-                    tanks_list[player_tank].stop_moving() 
-                    tanks_list[player_tank].stop_turning()
-
-                elif event.key == K_LEFT:
-                    tanks_list[player_tank].stop_turning()
-
-                elif event.key == K_RIGHT:
-                    tanks_list[player_tank].stop_turning()    
-
-        #-- Update physics
-        if skip_update == 0:
-            #  Loop over all the game objects and update their speed in function of their
-            # acceleration.
-            for obj in game_objects_list:
-                obj.update()
-            skip_update = 5
-        else:
-            skip_update -= 1
-
-        #   Check collisions and update the objects position
-        space.step(1 / FRAMERATE)
-
-        #   Update object that depends on an other object position (for instance a flag)
-        for obj in game_objects_list:
-            obj.post_update()
-
-        #-- Update Display
-        # Display the background on the screen
-        screen.blit(background, (0, 0))
-
-        # Update the display of the game objects on the screen
-        for obj in game_objects_list:
-            obj.update_screen(screen)
-        # Update to display bullets
-        for bullet in bullet_list:
-            bullet.update_screen(screen)
-        #Tank update
-        for tank in tanks_list:
-            tank.update_screen(screen)
-        
-        #Base update
-        for bases in bases_list:
-            bases.update_screen(screen)
-
-        #Flag update
-        for tanks in tanks_list:
-            tanks.try_grab_flag(flag)
-            
-        for tank in tanks_list:
-            if tank.has_won() == True:
-                running = False
-        flag.update_screen(screen)
-        #Tank has won - only works with player tank
-
-
-
-        #   Redisplay the entire screen (see double buffer technique)
-        pygame.display.flip()
-
-        #   Control the game framerate
-        clock.tick(FRAMERATE)
-
-#-- Create collision handlers 
-
-def collision_bullet_woodbox(arb,space,data):
-    """TODO make the sprite disappear"""
+def collision_bullet_woodbox(arb,space,data): 
+    """Idea: Pop might work better than remove"""
     bullet = arb.shapes[0]
     box = arb.shapes[1]
     try:
@@ -243,21 +143,21 @@ def collision_bullet_stonebox(arb,space,data):
 handler = space.add_collision_handler(1,4)
 handler.pre_solve = collision_bullet_stonebox
 
-def collision_bullet_metalbox(arb,space,data):
-    bullet = arb.shapes[0]
-    box = arb.shapes[1]
-    try:
-        if bullet or bullet.parent in game_objects_list:
-            space.remove(bullet, bullet.body) 
-            bullet_list.remove(bullet.parent)
-            game_objects_list.remove(bullet.parent)
+#def collision_bullet_metalbox(arb,space,data):
+ #   bullet = arb.shapes[0]
+  #  box = arb.shapes[1]
+   # try:
+    #    if bullet or bullet.parent in game_objects_list:
+     #       space.remove(bullet, bullet.body) 
+       #     bullet_list.remove(bullet.parent)
+      #      game_objects_list.remove(bullet.parent)
         
-    except ValueError:
-        1
-    return False
+    #except ValueError:
+     #   1
+    #return False
     
-handler = space.add_collision_handler(1,5)
-handler.pre_solve = collision_bullet_metalbox
+#handler = space.add_collision_handler(1,5)
+#handler.pre_solve = collision_bullet_metalbox
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
@@ -280,8 +180,128 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
 
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank
+
+
+
+#----- Main Loop -----#
+def main_loop():
+    running = True 
+    skip_update = 0
+                        
+
+    while running:
+        #-- Handle the events
+        for event in pygame.event.get():
+            # Check if we receive a QUIT event (for instance, if the user press the
+            # close button of the wiendow) or if the user press the escape key.
+            
+            if event.type == QUIT:
+                running = False
+            
+            if event.type ==  KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+
+                elif event.key == K_UP:
+                    tanks_list[player_tank].accelerate() 
+                    for tanks in tanks_list:
+                        tanks.accelerate()
+
+                elif event.key == K_DOWN:
+                    tanks_list[player_tank].decelerate()
+
+                elif event.key == K_LEFT:
+                    tanks_list[player_tank].turn_left()
+
+                elif event.key == K_RIGHT:
+                    tanks_list[player_tank].turn_right()
+                elif event.key == K_SPACE:
+                    global cooldown_tracker
+                    if cooldown_tracker >= 100:
+                      bullet_list.append(tanks_list[player_tank].shoot(space))
+                      cooldown_tracker = 0
+                    
+                
+
+            if event.type == KEYUP:
+                if event.key == K_UP:
+                    tanks_list[player_tank].stop_moving() 
+                    tanks_list[player_tank].stop_turning()
+
+                elif event.key == K_DOWN:
+                    tanks_list[player_tank].stop_moving() 
+                    tanks_list[player_tank].stop_turning()
+
+                elif event.key == K_LEFT:
+                    tanks_list[player_tank].stop_turning()
+
+                elif event.key == K_RIGHT:
+                    tanks_list[player_tank].stop_turning()  
+
+            if event.type == KEYUP or event.type == KEYDOWN:
+                cooldown_tracker += clock.get_time()
+                
+        #-- Update physics
+        if skip_update == 0:
+            #  Loop over all the game objects and update their speed in function of their
+            # acceleration.
+            for obj in game_objects_list:
+                obj.update()
+            skip_update = 5
+        else:
+            skip_update -= 1
+
+        #   Check collisions and update the objects position
+        space.step(1 / FRAMERATE)
+
+        #   Update object that depends on an other object position (for instance a flag)
+        for obj in game_objects_list:
+            obj.post_update()
+
+        #-- Update Display
+        # Display the background on the screen
+        screen.blit(background, (0, 0))
+
+        # Update the display of the game objects on the screen
+        for obj in game_objects_list:
+            obj.update_screen(screen)
+        # Update to display bullets
+        for bullet in bullet_list:
+            bullet.update_screen(screen)
+        #Tank update
+        for tank in tanks_list:
+            tank.update_screen(screen)
+        #Ai update
+        for ai in ai_list:
+            ai.decide()
+        
+        #Base update
+        for bases in bases_list:
+            bases.update_screen(screen)
+
+        #Flag update
+        for tanks in tanks_list:
+            tanks.try_grab_flag(flag)
+            
+        for tank in tanks_list:
+            if tank.has_won() == True:
+                running = False
+        flag.update_screen(screen)
+        #Tank has won - only works with player tank
+
+
+
+        #   Redisplay the entire screen (see double buffer technique)
+        pygame.display.flip()
+
+        #   Control the game framerate
+        clock.tick(FRAMERATE)
+
+#-- Create collision handlers 
+
+
     
-player_tank = 0 #Index of whcih tank the player controlls 
+ #Index of whcih tank the player controlls 
 
 create_grass()
 create_boxes()

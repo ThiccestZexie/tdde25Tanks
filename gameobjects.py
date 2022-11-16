@@ -225,8 +225,11 @@ class Tank(GamePhysicsObject):
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
+ 
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
         return bullet
+
+
     def drop_flag(self, flag):
            self.flag = None
            flag.is_on_tank = False
@@ -235,7 +238,7 @@ class Tank(GamePhysicsObject):
 
 
 class Bullet(GamePhysicsObject):
-    """TODO Define owner of bullet,"""
+    """TODO fix friction"""
     NORMAL_MAX_SPEED = 7    
     def __init__(self, x,y, orientation, sprite, space, owner):
         super().__init__(x,y, orientation, sprite, space, True)

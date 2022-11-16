@@ -103,6 +103,7 @@ class Ai:
             A bordering square is only considered accessible if it is grass
             or a wooden box.
         """
+        self.get_tile_of_position()
         neighbors = [] # Find the coordinates of the tiles' four neighbors
         return filter(self.filter_tile_neighbors, neighbors)
 
