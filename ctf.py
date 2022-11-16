@@ -29,16 +29,12 @@ import maps
 FRAMERATE = 50
 
 #-- Variables
-#   Cooldown for tankshots
-cooldown_tracker = 0
-player_tank = 0
 #   Define the current level
 current_map         = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
 flags_list          = []
-ai_list             = []
 bullet_list         = []
 bases_list          = []
 
@@ -82,11 +78,6 @@ def create_tanks():
         # Add the tank to the list of tanks
         tanks_list.append(tank)
         game_objects_list.append(tank)
-    for i in range(0, len(current_map.start_positions)):
-            inst_ai = ai.Ai(tank,game_objects_list, tanks_list, space, current_map)
-            ai_list.append(inst_ai)
-    ai_list.pop(player_tank)
-    
 
 #-- Create the bases
 def create_bases():
@@ -111,72 +102,14 @@ def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
     return flag
 
-
-#-- Create collision handlers 
-def collision_bullet_woodbox(arb,space,data): 
-    """Idea: Pop might work better than remove"""
-    bullet = arb.shapes[0]
-    box = arb.shapes[1]
-
-    if bullet or bullet.parent in bullet_list:
-        space.remove(bullet, bullet.body) 
-        space.remove(box, box.body)
-        bullet_list.remove(bullet.parent)
-        game_objects_list.remove(box.parent)
-
-    return False
-    
-handler = space.add_collision_handler(1,3)
-handler.pre_solve = collision_bullet_woodbox
-
-def collision_bullet_stonebox(arb,space,data):
-    bullet = arb.shapes[0]
-    box = arb.shapes[1]
-    
-    if bullet and bullet.parent in bullet_list:
-        space.remove(bullet, bullet.body) 
-        bullet_list.remove(bullet.parent)
-
-    return False
-
-handler = space.add_collision_handler(1,4)
-handler.pre_solve = collision_bullet_stonebox
-
-def collision_bullet_metalbox(arb,space,data):
-    bullet = arb.shapes[0]
-    box = arb.shapes[1]
-    if bullet or bullet.parent in bullet_list:
-        space.remove(bullet, bullet.body) 
-        bullet_list.remove(bullet.parent)
-    return False
-    
-handler = space.add_collision_handler(1,5)
-handler.pre_solve = collision_bullet_metalbox
-
-def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
-    bullet = arb.shapes[0]
-    tank = arb.shapes[1]
-    if tank.parent.name != bullet.parent.owner:
-        tank.body.position = tank.parent.start_position
-        if tank.parent.flag == flag: 
-            gameobjects.Tank.drop_flag(tank.parent, flag)
-        if bullet or bullet.parent in bullet_list:
-            space.remove(bullet, bullet.body)
-            bullet_list.remove(bullet.parent)
-
-    return False
-
-handler = space.add_collision_handler(1,2)
-handler.pre_solve = collision_bullet_tank
-
+#Creating all the objects
 
 
 #----- Main Loop -----#
 def main_loop():
     running = True 
     skip_update = 0
-                        
-
+    
     while running:
         #-- Handle the events
         for event in pygame.event.get():
@@ -204,10 +137,7 @@ def main_loop():
                 elif event.key == K_RIGHT:
                     tanks_list[player_tank].turn_right()
                 elif event.key == K_SPACE:
-                    global cooldown_tracker
-                    if cooldown_tracker >= 100:
-                      bullet_list.append(tanks_list[player_tank].shoot(space))
-                      cooldown_tracker = 0
+                    bullet_list.append(tanks_list[player_tank].shoot(space))
                     
                 
 
@@ -224,11 +154,8 @@ def main_loop():
                     tanks_list[player_tank].stop_turning()
 
                 elif event.key == K_RIGHT:
-                    tanks_list[player_tank].stop_turning()  
+                    tanks_list[player_tank].stop_turning()    
 
-            if event.type == KEYUP or event.type == KEYDOWN:
-                cooldown_tracker += clock.get_time()
-                
         #-- Update physics
         if skip_update == 0:
             #  Loop over all the game objects and update their speed in function of their
@@ -259,9 +186,6 @@ def main_loop():
         #Tank update
         for tank in tanks_list:
             tank.update_screen(screen)
-        #Ai update
-        for ai in ai_list:
-            ai.decide()
         
         #Base update
         for bases in bases_list:
@@ -285,10 +209,80 @@ def main_loop():
         #   Control the game framerate
         clock.tick(FRAMERATE)
 
+#-- Create collision handlers 
 
-
+def collision_bullet_woodbox(arb,space,data):
+    """TODO make the sprite disappear"""
+    bullet = arb.shapes[0]
+    box = arb.shapes[1]
+    try:
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            space.remove(box, box.body)
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(box.parent)
+    except ValueError:
+        1
+    return False
     
- #Index of whcih tank the player controlls 
+handler = space.add_collision_handler(1,3)
+handler.pre_solve = collision_bullet_woodbox
+
+def collision_bullet_stonebox(arb,space,data):
+    bullet = arb.shapes[0]
+    box = arb.shapes[1]
+    try:
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(bullet.parent)
+    except ValueError:
+        1
+    return False
+
+handler = space.add_collision_handler(1,4)
+handler.pre_solve = collision_bullet_stonebox
+
+def collision_bullet_metalbox(arb,space,data):
+    bullet = arb.shapes[0]
+    box = arb.shapes[1]
+    try:
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(bullet.parent)
+        
+    except ValueError:
+        1
+    return False
+    
+handler = space.add_collision_handler(1,5)
+handler.pre_solve = collision_bullet_metalbox
+
+def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
+    bullet = arb.shapes[0]
+    tank = arb.shapes[1]
+    try: 
+        if tank.parent.name != bullet.parent.owner:
+            tank.body.position = tank.parent.start_position
+            if tank.parent.flag == flag: 
+                gameobjects.Tank.drop_flag(tank.parent, flag)
+            if bullet or bullet.parent in game_objects_list:
+                space.remove(bullet, bullet.body)
+                bullet_list.remove(bullet.parent)
+                game_objects_list.remove(bullet.parent)
+
+    except AttributeError:
+        1
+    except ValueError: 
+        1
+    return False
+
+handler = space.add_collision_handler(1,2)
+handler.pre_solve = collision_bullet_tank
+
+"""TODO Fix collison between 2 objects where it doesnt work... for example bullet hitting woodbox and stonebox doesnt work"""
+player_tank = 0 #Index of whcih tank the player controlls 
 
 create_grass()
 create_boxes()
