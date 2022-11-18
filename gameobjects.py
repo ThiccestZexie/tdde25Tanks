@@ -258,13 +258,14 @@ class Box(GamePhysicsObject):
         """ It takes as arguments the coordinate of the starting position of the box (x,y) and the box model (boxmodel). """
         super().__init__(x, y, 0, sprite, space, movable)
         self.destructable = destructable
+        self.shape.collision_type = 3
             #Woodbox = 3, Rockbox = 4 and metalbox = 5
-        if sprite == images.woodbox:
-            self.shape.collision_type = 3
-        if sprite == images.rockbox:
-            self.shape.collision_type = 4
-        if sprite == images.metalbox:
-            self.shape.collision_type = 5    
+      #  if sprite == images.woodbox:
+       #     self.shape.collision_type = 3
+        #if sprite == images.rockbox:
+         #   self.shape.collision_type = 4
+        #if sprite == images.metalbox:
+         #   self.shape.collision_type = 5    
 
 
 def get_box_with_type(x, y, type, space):
