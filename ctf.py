@@ -105,7 +105,6 @@ def create_out_of_bounds():
     space.add(walls)
 
 
-#<INSERT CREATE FLAG>
 #-- Create the flag
 def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
@@ -147,7 +146,7 @@ def collision_bullet_box(arb,space,data):
     return False
 
 handler = space.add_collision_handler(1,3)
-handler.pre_solve = collision_bullet_box
+handler.post_solve = collision_bullet_box
 
 #def collision_bullet_metalbox(arb,space,data):
 #    bullet = arb.shapes[0]
