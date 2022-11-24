@@ -251,14 +251,14 @@ class Bullet(GamePhysicsObject):
     NORMAL_MAX_SPEED = 7    
     def __init__(self, x,y, orientation, sprite, space, owner):
         super().__init__(x,y, orientation, sprite, space, True)
-        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #was self.velocity.body.angle now it ricochetes 
+        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
         self.shape.collision_type = 1   
         self.owner = owner
         self.sprite = sprite
         self.shape.parent = self
     def update_screen(self, screen):
         super().update_screen(screen)
-        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) #mby not .rotated part it leads to grico
+        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
 
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """
@@ -267,13 +267,14 @@ class Box(GamePhysicsObject):
         """ It takes as arguments the coordinate of the starting position of the box (x,y) and the box model (boxmodel). """
         super().__init__(x, y, 0, sprite, space, movable)
         self.destructable = destructable
+        self.shape.collision_type = 3
             #Woodbox = 3, Rockbox = 4 and metalbox = 5
-        if sprite == images.woodbox:
-            self.shape.collision_type = 3
-        if sprite == images.rockbox:
-            self.shape.collision_type = 4
-        if sprite == images.metalbox:
-            self.shape.collision_type = 5    
+      #  if sprite == images.woodbox:
+       #     self.shape.collision_type = 3
+        #if sprite == images.rockbox:
+         #   self.shape.collision_type = 4
+        #if sprite == images.metalbox:
+         #   self.shape.collision_type = 5    
 
 
 def get_box_with_type(x, y, type, space):

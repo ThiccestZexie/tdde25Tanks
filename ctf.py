@@ -123,12 +123,12 @@ def create_out_of_bounds():
     space.add(walls)
 
 
-#<INSERT CREATE FLAG>
 #-- Create the flag
 def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
     return flag
 
+<<<<<<< HEAD
 def collision_bullet_woodbox(arb,space,data): 
     """Idea: Pop might work better than remove"""
     bullet = arb.shapes[0]
@@ -142,12 +142,28 @@ def collision_bullet_woodbox(arb,space,data):
     except ValueError:
         1
     return False
-    
-handler = space.add_collision_handler(1,3)
-handler.pre_solve = collision_bullet_woodbox
+=======
 
-def collision_bullet_stonebox(arb,space,data):
+#-- Create collision handlers 
+#def collision_bullet_woodbox(arb,space,data): 
+#    bullet = arb.shapes[0]
+#    box = arb.shapes[1]
+
+#    if bullet or bullet.parent in bullet_list:
+#        space.remove(bullet, bullet.body) 
+#        space.remove(box, box.body)
+#        bullet_list.remove(bullet.parent)
+#        game_objects_list.remove(box.parent)
+
+#    return False
+>>>>>>> cf6bc134ef4d76120bad08080a1af8472f90486f
+    
+#handler = space.add_collision_handler(1,3)
+#handler.pre_solve = collision_bullet_woodbox
+
+def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
+<<<<<<< HEAD
     box = arb.shapes[1]
     try:
         if bullet or bullet.parent in game_objects_list:
@@ -156,11 +172,28 @@ def collision_bullet_stonebox(arb,space,data):
             game_objects_list.remove(bullet.parent)
     except ValueError:
         1
+=======
+    box  = arb.shapes[1]
+
+    if bullet and bullet.parent in bullet_list:
+        space.remove(bullet, bullet.body) 
+        bullet_list.remove(bullet.parent)
+        if box.parent.destructable == True:
+            game_objects_list.remove(box.parent)
+            space.remove(box, box.body)
+      #  elif box.parent.movable == True: 
+            #MOVE
+       #     1
+     
+        
+
+>>>>>>> cf6bc134ef4d76120bad08080a1af8472f90486f
     return False
 
-handler = space.add_collision_handler(1,4)
-handler.pre_solve = collision_bullet_stonebox
+handler = space.add_collision_handler(1,3)
+handler.post_solve = collision_bullet_box
 
+<<<<<<< HEAD
 def collision_bullet_metalbox(arb,space,data):
     bullet = arb.shapes[0]
     box = arb.shapes[1]
@@ -171,9 +204,19 @@ def collision_bullet_metalbox(arb,space,data):
            game_objects_list.remove(bullet.parent)
     
     return False
+=======
+#def collision_bullet_metalbox(arb,space,data):
+#    bullet = arb.shapes[0]
+#    box = arb.shapes[1]
+>>>>>>> cf6bc134ef4d76120bad08080a1af8472f90486f
     
-handler = space.add_collision_handler(1,5)
-handler.pre_solve = collision_bullet_metalbox
+#    if bullet or bullet.parent in bullet_list:
+#        space.remove(bullet, bullet.body) 
+#        bullet_list.remove(bullet.parent)
+#    return False
+
+#handler = space.add_collision_handler(1,5)
+#handler.post_solve = collision_bullet_metalbox
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
@@ -290,8 +333,13 @@ def main_loop():
         for tank in tanks_list:
             tank.update_screen(screen)
         #Ai update
+<<<<<<< HEAD
         # for ai in ai_list:
         #     ai.decide()
+=======
+       # for ai in ai_list:
+        #    ai.decide()
+>>>>>>> cf6bc134ef4d76120bad08080a1af8472f90486f
         
         #Base update
         for bases in bases_list:
