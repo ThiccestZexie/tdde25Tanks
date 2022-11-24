@@ -2,8 +2,8 @@ import pygame
 from pygame.locals import *
 from pygame.color import *
 import pymunk
-
-
+from data import *
+from sounds import *
 #----- Initialisation -----#
 
 #-- Initialise the display
@@ -24,7 +24,7 @@ import ai
 import images
 import gameobjects
 import maps
-
+from pygame import mixer
 #-- Constants
 FRAMERATE = 50
 
@@ -47,6 +47,24 @@ screen = pygame.display.set_mode(current_map.rect().size)
 
 #-- Generate the background
 background = pygame.Surface(screen.get_size())
+
+from pygame import mixer
+from data import *
+
+
+fail = ('data/Fail.wav')
+
+# mixer.music.load('Boom.wav')
+# mixer.music.load('Tiptoe.wav')
+# mixer.music.load('data/Fail.wav')
+# # mixer.music.load('Slip.wav')
+# mixer.music.load('Background.wav')
+# fail =  mixer.sound('Fail.mp3')
+# fall = mixer.music.load('Fall.wav')
+# background =  mixer.music.load('Background.wav')
+# tiptoe = mixer.sound('Tiptoe.wav')   
+    
+
 #   Copy the grass tile all over the level area
 def create_grass():
     for x in range(0, current_map.width):
@@ -111,19 +129,18 @@ def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
     return flag
 
-
-#-- Create collision handlers 
 def collision_bullet_woodbox(arb,space,data): 
     """Idea: Pop might work better than remove"""
     bullet = arb.shapes[0]
     box = arb.shapes[1]
-
-    if bullet or bullet.parent in bullet_list:
-        space.remove(bullet, bullet.body) 
-        space.remove(box, box.body)
-        bullet_list.remove(bullet.parent)
-        game_objects_list.remove(box.parent)
-
+    try:
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            space.remove(box, box.body)
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(box.parent)
+    except ValueError:
+        1
     return False
     
 handler = space.add_collision_handler(1,3)
@@ -132,11 +149,13 @@ handler.pre_solve = collision_bullet_woodbox
 def collision_bullet_stonebox(arb,space,data):
     bullet = arb.shapes[0]
     box = arb.shapes[1]
-    
-    if bullet and bullet.parent in bullet_list:
-        space.remove(bullet, bullet.body) 
-        bullet_list.remove(bullet.parent)
-
+    try:
+        if bullet or bullet.parent in game_objects_list:
+            space.remove(bullet, bullet.body) 
+            bullet_list.remove(bullet.parent)
+            game_objects_list.remove(bullet.parent)
+    except ValueError:
+        1
     return False
 
 handler = space.add_collision_handler(1,4)
@@ -145,9 +164,12 @@ handler.pre_solve = collision_bullet_stonebox
 def collision_bullet_metalbox(arb,space,data):
     bullet = arb.shapes[0]
     box = arb.shapes[1]
-    if bullet or bullet.parent in bullet_list:
-        space.remove(bullet, bullet.body) 
-        bullet_list.remove(bullet.parent)
+   
+    if bullet or bullet.parent in game_objects_list:
+           space.remove(bullet, bullet.body) 
+           bullet_list.remove(bullet.parent)
+           game_objects_list.remove(bullet.parent)
+    
     return False
     
 handler = space.add_collision_handler(1,5)
@@ -156,14 +178,22 @@ handler.pre_solve = collision_bullet_metalbox
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
-    if tank.parent.name != bullet.parent.owner:
-        tank.body.position = tank.parent.start_position
-        if tank.parent.flag == flag: 
-            gameobjects.Tank.drop_flag(tank.parent, flag)
-        if bullet or bullet.parent in bullet_list:
-            space.remove(bullet, bullet.body)
-            bullet_list.remove(bullet.parent)
+    sound_player(fail)
+    # mixer.Sound.play('data/Fail.wav')
+    try: 
+        if tank.parent.name != bullet.parent.owner:
+            tank.body.position = tank.parent.start_position
+            if tank.parent.flag == flag: 
+                gameobjects.Tank.drop_flag(tank.parent, flag)
+            if bullet or bullet.parent in game_objects_list:
+                space.remove(bullet, bullet.body)
+                bullet_list.remove(bullet.parent)
+                game_objects_list.remove(bullet.parent)
 
+    except AttributeError:
+        1
+    except ValueError: 
+        1
     return False
 
 handler = space.add_collision_handler(1,2)
@@ -260,8 +290,8 @@ def main_loop():
         for tank in tanks_list:
             tank.update_screen(screen)
         #Ai update
-        for ai in ai_list:
-            ai.decide()
+        # for ai in ai_list:
+        #     ai.decide()
         
         #Base update
         for bases in bases_list:
@@ -285,6 +315,7 @@ def main_loop():
         #   Control the game framerate
         clock.tick(FRAMERATE)
 
+#-- Create collision handlers 
 
 
     

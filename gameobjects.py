@@ -2,8 +2,17 @@ import images
 import pygame
 import pymunk
 import math
+from pygame import mixer
+
 
 DEBUG = False # Change this to set it in debug mode
+
+
+#--Audiofiles
+# mixer.init()
+
+# mixer.music.load('Boom.mp3')
+# boomsound= mixer.sound('Boom.mp3')
 
 
 def physics_to_display(x):
@@ -225,7 +234,7 @@ class Tank(GamePhysicsObject):
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
- 
+        # boomsound.play()
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
         return bullet
 
