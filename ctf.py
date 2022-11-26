@@ -26,7 +26,7 @@ import gameobjects
 import maps
 
 #-- Constants
-FRAMERATE = 50
+FRAMERATE = 120
 
 #-- Variables
 #   Cooldown for tankshots
@@ -111,22 +111,6 @@ def create_flag():
     return flag
 
 
-#-- Create collision handlers 
-#def collision_bullet_woodbox(arb,space,data): 
-#    bullet = arb.shapes[0]
-#    box = arb.shapes[1]
-
-#    if bullet or bullet.parent in bullet_list:
-#        space.remove(bullet, bullet.body) 
-#        space.remove(box, box.body)
-#        bullet_list.remove(bullet.parent)
-#        game_objects_list.remove(box.parent)
-
-#    return False
-    
-#handler = space.add_collision_handler(1,3)
-#handler.pre_solve = collision_bullet_woodbox
-
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
     box  = arb.shapes[1]
@@ -137,32 +121,16 @@ def collision_bullet_box(arb,space,data):
         if box.parent.destructable == True:
             game_objects_list.remove(box.parent)
             space.remove(box, box.body)
-      #  elif box.parent.movable == True: 
-            #MOVE
-       #     1
-     
-        
 
     return False
 
 handler = space.add_collision_handler(1,3)
 handler.post_solve = collision_bullet_box
 
-#def collision_bullet_metalbox(arb,space,data):
-#    bullet = arb.shapes[0]
-#    box = arb.shapes[1]
-    
-#    if bullet or bullet.parent in bullet_list:
-#        space.remove(bullet, bullet.body) 
-#        bullet_list.remove(bullet.parent)
-#    return False
-
-#handler = space.add_collision_handler(1,5)
-#handler.post_solve = collision_bullet_metalbox
-
-def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
+def collision_bullet_tank(arb, space, data):
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
+
     if tank.parent.name != bullet.parent.owner:
         tank.body.position = tank.parent.start_position
         if tank.parent.flag == flag: 
@@ -267,6 +235,7 @@ def main_loop():
         for tank in tanks_list:
             tank.update_screen(screen)
         #Ai update
+        
        # for ai in ai_list:
         #    ai.decide()
         
@@ -292,17 +261,18 @@ def main_loop():
         #   Control the game framerate
         clock.tick(FRAMERATE)
 
-
-
-    
- #Index of whcih tank the player controlls 
-
 create_grass()
+
 create_boxes()
+
 create_tanks()
+
 create_bases()
+
 create_out_of_bounds()
+
 flag = create_flag()
+
 main_loop()
 
 
