@@ -82,10 +82,9 @@ def create_tanks():
         # Add the tank to the list of tanks
         tanks_list.append(tank)
         game_objects_list.append(tank)
-    for i in range(0, len(current_map.start_positions)):
-            inst_ai = ai.Ai(tank,game_objects_list, tanks_list, space, current_map)
+    for i in range(1, len(current_map.start_positions)):
+            inst_ai = ai.Ai(tanks_list[i],game_objects_list, tanks_list, space, current_map)
             ai_list.append(inst_ai)
-    ai_list.pop(player_tank)
     
 
 #-- Create the bases
@@ -108,6 +107,7 @@ def create_out_of_bounds():
 #-- Create the flag
 def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
+    game_objects_list.append(flag)
     return flag
 
 
@@ -167,8 +167,7 @@ def main_loop():
 
                 elif event.key == K_UP:
                     tanks_list[player_tank].accelerate() 
-                    for tanks in tanks_list:
-                        tanks.accelerate()
+
 
                 elif event.key == K_DOWN:
                     tanks_list[player_tank].decelerate()
@@ -234,10 +233,8 @@ def main_loop():
         #Tank update
         for tank in tanks_list:
             tank.update_screen(screen)
-        #Ai update
         
-       # for ai in ai_list:
-        #    ai.decide()
+
         
         #Base update
         for bases in bases_list:
@@ -250,8 +247,11 @@ def main_loop():
         for tank in tanks_list:
             if tank.has_won() == True:
                 running = False
-        flag.update_screen(screen)
-        #Tank has won - only works with player tank
+        
+        #Ai update
+        for i in range(len(ai_list)):
+            ai_list[i].decide()
+            ai_list[i].update_grid_pos()
 
 
 

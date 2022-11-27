@@ -47,14 +47,14 @@ class Ai:
 
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
-        self.update_grid_pos()
-        self.find_shortest_path(0)
-        pass # To be implemented
+        next(self.move_cycle)
+
 
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 
         """
+
         pass # To be implemented
 
     def move_cycle_gen (self):
@@ -62,26 +62,70 @@ class Ai:
             to move to our goal.
         """ 
         while True:
+            shorest_path = self.find_shortest_path()
+
+            next_coord = shorest_path.popleft()
             yield
-        
-    def find_shortest_path(self, b):
+            needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5)) # Cause the middle 
+            p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
+            if p_angle < math.pi:
+                self.tank.turn_left()
+                yield
+            elif 0 > p_angle > math.pi:
+                self.tank.turn_right()
+                yield
+            else:
+                self.tank.turn_right()
+                yield
+
+            while abs(p_angle) >= MIN_ANGLE_DIF:
+                p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
+                yield
+
+            self.tank.stop_turning()
+            distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
+            self.tank.accelerate()
+            while distance > 0.25:
+                distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
+                yield
+            self.tank.stop_moving()
+            yield
+
+
+    def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.
         """
-        # To be implemented
-        if b < 10:
-            b += 1
-            shortest_path = []
-            a = self.get_tile_neighbors(self.grid_pos)
-            return self.find_shortest_path(b)
+        shortest_path = []
+        start = self.grid_pos
+        bfs_queue = deque()
+        bfs_queue.append(start)
+        explored = set(start.int_tuple)
+        theory_pos_tree = {}  
+
+        while len(bfs_queue) > 0:
+            theory_pos = bfs_queue.popleft()
+            if theory_pos == self.get_target_tile(): # if we found the flag
+                while theory_pos != start:
+                    shortest_path.append(theory_pos)
+                    parent = theory_pos_tree[theory_pos.int_tuple]
+                    theory_pos = parent
+                shortest_path.reverse()
+                break
+            for neighbour in self.get_tile_neighbors(theory_pos):
+                if neighbour.int_tuple not in explored:
+                    bfs_queue.appendleft(neighbour)
+                    theory_pos_tree[neighbour.int_tuple] = theory_pos
+                    explored.add(neighbour.int_tuple)
+    
         return deque(shortest_path)
+
             
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,
             return the position of our home base.
         """
-
-        if self.tank.flag != None:
+        if self.tank.flag is not None:
             x, y = self.tank.start_position
         else:
             self.get_flag() # Ensure that we have initialized it.
@@ -92,13 +136,14 @@ class Ai:
         """ This has to be called to get the flag, since we don't know
             where it is when the Ai object is initialized.
         """
-        if self.flag == None:
-        # Find the flag in the game objects list
+        if self.flag is None:
+            # Find the flag in the game objects list
             for obj in self.game_objects_list:
                 if isinstance(obj, gameobjects.Flag):
                     self.flag = obj
                     break
         return self.flag
+
 
     def get_tile_of_position(self, position_vector):
         """ Converts and returns the float position of our tank to an integer position. """
@@ -111,22 +156,25 @@ class Ai:
             or a wooden box.
         """
         neighbors = [] # Find the coordinates of the tiles' four neighbors
-        neighbors.append(Vec2d(coord_vec + (1,0)))
-        neighbors.append(Vec2d(coord_vec + (-1,0)))
-        neighbors.append(Vec2d(coord_vec + (0,-1)))
-        neighbors.append(Vec2d(coord_vec + (0,1)))
-
-        filtered_neighbors = []
-        for coord in range(4):
-            if self.filter_tile_neighbors(neighbors[coord]):
-                filtered_neighbors.append(neighbors[coord])
-        return filtered_neighbors
+        filtered_neighboors = []
+        coord = self.get_tile_of_position(coord_vec)
+        neighbors.append(coord + Vec2d(1,0))
+        neighbors.append(coord + Vec2d(-1,0))
+        neighbors.append(coord + Vec2d(0,-1))
+        neighbors.append(coord + Vec2d(0,1))
+        for i in range(4):
+            if self.filter_tile_neighbors(neighbors[i]) == True:
+                filtered_neighboors.append(neighbors[i])
+        return filtered_neighboors
 
     def filter_tile_neighbors (self, coord):
-        """TODO use MAX_X and MAX_Y"""
-        if 0 <= coord[0] < self.currentmap.width:
-            if 0 <= coord[1] < self.currentmap.height:
-                if not self.currentmap.boxAt(coord[0], coord[1]):
-                    return True
+        tile = self.get_tile_of_position(coord)
+
+        if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
+                return False
+        if self.currentmap.boxAt(tile[0],tile[1]) == 0:
+            return True
+        else:
+            return False
 
 SimpleAi = Ai # Legacy
