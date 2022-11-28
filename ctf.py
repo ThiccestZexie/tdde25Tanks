@@ -142,9 +142,6 @@ def collision_bullet_box(arb,space,data):
             game_objects_list.remove(box.parent)
             space.remove(box, box.body)
 
-     
-        
-
     return False
 
 handler = space.add_collision_handler(1,3)
@@ -162,7 +159,7 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if bullet or bullet.parent in bullet_list:
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet.parent)
-
+    return False
 
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank

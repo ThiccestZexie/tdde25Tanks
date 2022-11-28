@@ -47,25 +47,15 @@ class Ai:
 
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
-<<<<<<< HEAD
         next(self.move_cycle)
 
-=======
-        self.update_grid_pos()
-        self.find_shortest_path(0)
-        self.maybe_shoot()
-        next(self.move_cycle)
-        pass # To be implemented
->>>>>>> 6c34a84da6b6505610542e40fee4f742ea560404
 
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 
         """
-<<<<<<< HEAD
 
         pass # To be implemented
-=======
         tank_angle = self.tank.body.angel + math.pi/2
         pos = Vec2d(self.tank.body.position)
 
@@ -83,14 +73,12 @@ class Ai:
                     self.tank.shoot()
 
          # Probably done, maybe needs tweaking-Valle
->>>>>>> 6c34a84da6b6505610542e40fee4f742ea560404
 
     def move_cycle_gen (self):
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
         """ 
         while True:
-<<<<<<< HEAD
             shorest_path = self.find_shortest_path()
             next_coord = shorest_path.popleft()
             if len(shorest_path) == 0:
@@ -119,8 +107,8 @@ class Ai:
             while distance > 0.25:
                 distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
-            if self.flag == True:
-                self.tank.stop_moving()
+        
+            self.tank.stop_moving()
             yield
 
 
@@ -151,24 +139,6 @@ class Ai:
                     theory_pos_tree[neighbour.int_tuple] = theory_pos
                     explored.add(neighbour.int_tuple)
     
-=======
-            self.update_grid_pos()
-            findso
-        
-    def find_shortest_path(self, b):
-        """ A simple Breadth First Search using integer coordinates as our nodes.
-            Edges are calculated as we go, using an external function.
-        """
-        bfs_queue = deque()
-
-        # To be implemented
-        while len(bfs_queue) > 0:
-        if b < 10:
-            b += 1
-            shortest_path = []
-            a = self.get_tile_neighbors(self.grid_pos)
-            return self.find_shortest_path(b)
->>>>>>> 6c34a84da6b6505610542e40fee4f742ea560404
         return deque(shortest_path)
 
             
