@@ -3,7 +3,7 @@ import pymunk
 from pymunk import Vec2d
 import gameobjects
 from collections import defaultdict, deque
-
+from gameobjects import *
 # NOTE: use only 'map0' during development!
 
 MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
@@ -27,7 +27,7 @@ class Ai:
     a breadth first search. Also capable of shooting other tanks and or wooden
     boxes. """
 
-    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap):
+    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap,):
         self.tank               = tank
         self.game_objects_list  = game_objects_list
         self.tanks_list         = tanks_list
@@ -47,21 +47,50 @@ class Ai:
 
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
+<<<<<<< HEAD
         next(self.move_cycle)
 
+=======
+        self.update_grid_pos()
+        self.find_shortest_path(0)
+        self.maybe_shoot()
+        next(self.move_cycle)
+        pass # To be implemented
+>>>>>>> 6c34a84da6b6505610542e40fee4f742ea560404
 
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 
         """
+<<<<<<< HEAD
 
         pass # To be implemented
+=======
+        tank_angle = self.tank.body.angel + math.pi/2
+        pos = Vec2d(self.tank.body.position)
+
+        start_coordinate = pos + (0.55 * math.cos(tank_angle), 0.55 * math.sin(tank_angle)) 
+        end_coordinate = pos + (69 * math.cos(tank_angle), 69 * math.sin(tank_angle)) #69 is big enough
+        self.space.segment_query_first
+        obj = self.space.segment_query_first(start_coordinate,end_coordinate,0,pymunk.ShapeFilter())
+        if hasattr(obj, 'shape'):
+            if hasattr(obj.shape.parent, 'parent'):
+                if isinstance(obj,gameobjects.Box) and obj.shape.parent.destructable:
+                    box = obj.shape.parent
+                    self.tank.shoot()
+
+                elif isinstance(obj.shape.tank,  GameObject.tank):
+                    self.tank.shoot()
+
+         # Probably done, maybe needs tweaking-Valle
+>>>>>>> 6c34a84da6b6505610542e40fee4f742ea560404
 
     def move_cycle_gen (self):
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
         """ 
         while True:
+<<<<<<< HEAD
             shorest_path = self.find_shortest_path()
             next_coord = shorest_path.popleft()
             if len(shorest_path) == 0:
@@ -122,6 +151,24 @@ class Ai:
                     theory_pos_tree[neighbour.int_tuple] = theory_pos
                     explored.add(neighbour.int_tuple)
     
+=======
+            self.update_grid_pos()
+            findso
+        
+    def find_shortest_path(self, b):
+        """ A simple Breadth First Search using integer coordinates as our nodes.
+            Edges are calculated as we go, using an external function.
+        """
+        bfs_queue = deque()
+
+        # To be implemented
+        while len(bfs_queue) > 0:
+        if b < 10:
+            b += 1
+            shortest_path = []
+            a = self.get_tile_neighbors(self.grid_pos)
+            return self.find_shortest_path(b)
+>>>>>>> 6c34a84da6b6505610542e40fee4f742ea560404
         return deque(shortest_path)
 
             

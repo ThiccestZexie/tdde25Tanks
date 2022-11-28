@@ -2,8 +2,8 @@ import pygame
 from pygame.locals import *
 from pygame.color import *
 import pymunk
-
-
+from data import *
+from sounds import *
 #----- Initialisation -----#
 
 #-- Initialise the display
@@ -24,7 +24,7 @@ import ai
 import images
 import gameobjects
 import maps
-
+from pygame import mixer
 #-- Constants
 FRAMERATE = 120
 
@@ -47,6 +47,24 @@ screen = pygame.display.set_mode(current_map.rect().size)
 
 #-- Generate the background
 background = pygame.Surface(screen.get_size())
+
+from pygame import mixer
+from data import *
+
+
+fail = ('data/Fail.wav')
+
+# mixer.music.load('Boom.wav')
+# mixer.music.load('Tiptoe.wav')
+# mixer.music.load('data/Fail.wav')
+# # mixer.music.load('Slip.wav')
+# mixer.music.load('Background.wav')
+# fail =  mixer.sound('Fail.mp3')
+# fall = mixer.music.load('Fall.wav')
+# background =  mixer.music.load('Background.wav')
+# tiptoe = mixer.sound('Tiptoe.wav')   
+    
+
 #   Copy the grass tile all over the level area
 def create_grass():
     for x in range(0, current_map.width):
@@ -124,15 +142,19 @@ def collision_bullet_box(arb,space,data):
             game_objects_list.remove(box.parent)
             space.remove(box, box.body)
 
+     
+        
+
     return False
 
 handler = space.add_collision_handler(1,3)
 handler.post_solve = collision_bullet_box
 
-def collision_bullet_tank(arb, space, data):
+
+
+def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
-
     if tank.parent.name != bullet.parent.owner:
         tank.body.position = tank.parent.start_position
         if tank.parent.flag == flag: 
@@ -141,7 +163,6 @@ def collision_bullet_tank(arb, space, data):
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet.parent)
 
-    return False
 
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank
@@ -235,8 +256,9 @@ def main_loop():
         #Tank update
         for tank in tanks_list:
             tank.update_screen(screen)
-        
-
+        #Ai update
+       # for ai in ai_list:
+        #    ai.decide()
         
         #Base update
         for bases in bases_list:
@@ -266,6 +288,11 @@ def main_loop():
 
         #   Control the game framerate
         clock.tick(FRAMERATE)
+
+
+
+    
+ #Index of whcih tank the player controlls 
 
 create_grass()
 
