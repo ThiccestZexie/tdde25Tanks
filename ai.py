@@ -63,12 +63,14 @@ class Ai:
         """ 
         while True:
             shorest_path = self.find_shortest_path()
-
             next_coord = shorest_path.popleft()
+            if len(shorest_path) == 0:
+                yield
+                continue
             yield
-            needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5)) # Cause the middle 
+            needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
             p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
-            if p_angle < math.pi:
+            if p_angle < -math.pi:
                 self.tank.turn_left()
                 yield
             elif 0 > p_angle > math.pi:
@@ -88,8 +90,10 @@ class Ai:
             while distance > 0.25:
                 distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
-            self.tank.stop_moving()
+            if self.flag == True:
+                self.tank.stop_moving()
             yield
+
 
 
     def find_shortest_path(self):
@@ -170,7 +174,7 @@ class Ai:
     def filter_tile_neighbors (self, coord):
         tile = self.get_tile_of_position(coord)
 
-        if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
+        if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] <= 0 or coord[1] <= 0:
                 return False
         if self.currentmap.boxAt(tile[0],tile[1]) == 0:
             return True

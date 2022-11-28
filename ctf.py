@@ -82,6 +82,8 @@ def create_tanks():
         # Add the tank to the list of tanks
         tanks_list.append(tank)
         game_objects_list.append(tank)
+
+        
     for i in range(1, len(current_map.start_positions)):
             inst_ai = ai.Ai(tanks_list[i],game_objects_list, tanks_list, space, current_map)
             ai_list.append(inst_ai)
@@ -249,9 +251,13 @@ def main_loop():
                 running = False
         
         #Ai update
-        for i in range(len(ai_list)):
-            ai_list[i].decide()
-            ai_list[i].update_grid_pos()
+        ai_list[0].decide()
+        ai_list[0].update_grid_pos()
+
+        #for ai in ai_list:
+         #   ai.decide()
+            
+          #  ai.update_grid_pos()
 
 
 
