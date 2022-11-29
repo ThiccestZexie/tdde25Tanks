@@ -47,6 +47,7 @@ class Ai:
 
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
+        
         next(self.move_cycle)
 
 
@@ -79,19 +80,22 @@ class Ai:
             to move to our goal.
         """ 
         while True:
-            shorest_path = self.find_shortest_path()
-            next_coord = shorest_path.popleft()
-            if len(shorest_path) == 0:
+            self.update_grid_pos()
+            shortest_path = self.find_shortest_path()
+            if len(shortest_path) == 0:
                 yield
                 continue
             yield
+            next_coord = shortest_path.popleft()
+
             needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
             p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
             if p_angle < -math.pi:
                 self.tank.turn_left()
                 yield
-            elif 0 > p_angle > math.pi:
+            elif p_angle > math.pi:
                 self.tank.turn_right()
+                
                 yield
             else:
                 self.tank.turn_right()
@@ -107,7 +111,7 @@ class Ai:
             while distance > 0.25:
                 distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
-        
+                
             self.tank.stop_moving()
             yield
 
@@ -116,8 +120,10 @@ class Ai:
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.
+            TODO: compare paths to find the most efficient path also make it pick up the flag
         """
         shortest_path = []
+       # shortest_path_candidate = []
         start = self.grid_pos
         bfs_queue = deque()
         bfs_queue.append(start)
@@ -128,7 +134,7 @@ class Ai:
             theory_pos = bfs_queue.popleft()
             if theory_pos == self.get_target_tile(): # if we found the flag
                 while theory_pos != start:
-                    shortest_path.append(theory_pos)
+                    shortest_path.append(theory_pos )
                     parent = theory_pos_tree[theory_pos.int_tuple]
                     theory_pos = parent
                 shortest_path.reverse()
@@ -151,7 +157,7 @@ class Ai:
         else:
             self.get_flag() # Ensure that we have initialized it.
             x, y = self.flag.x, self.flag.y
-        return Vec2d(int(x), int(y))
+        return Vec2d(int(x), int(y)) 
 
     def get_flag(self):
         """ This has to be called to get the flag, since we don't know
@@ -169,7 +175,7 @@ class Ai:
     def get_tile_of_position(self, position_vector):
         """ Converts and returns the float position of our tank to an integer position. """
         x, y = position_vector
-        return Vec2d(int(x), int(y))
+        return Vec2d(int(x), int(y)) 
 
     def get_tile_neighbors(self, coord_vec):
         """ Returns all bordering grid squares of the input coordinate.
@@ -183,19 +189,24 @@ class Ai:
         neighbors.append(coord + Vec2d(-1,0))
         neighbors.append(coord + Vec2d(0,-1))
         neighbors.append(coord + Vec2d(0,1))
+
         for i in range(4):
             if self.filter_tile_neighbors(neighbors[i]) == True:
                 filtered_neighboors.append(neighbors[i])
+        print(filtered_neighboors)
         return filtered_neighboors
 
     def filter_tile_neighbors (self, coord):
         tile = self.get_tile_of_position(coord)
-
-        if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] <= 0 or coord[1] <= 0:
-                return False
-        if self.currentmap.boxAt(tile[0],tile[1]) == 0:
-            return True
-        else:
+        if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
             return False
+        box_type = self.currentmap.boxAt(tile[0], tile[1])
+        if box_type == 1:
+            return False
+      #  if box_type == 3:
+       #     return self.allow_metalbox
+        return True
+
+
 
 SimpleAi = Ai # Legacy

@@ -101,11 +101,10 @@ def create_tanks():
         tanks_list.append(tank)
         game_objects_list.append(tank)
 
-        
     for i in range(1, len(current_map.start_positions)):
-            inst_ai = ai.Ai(tanks_list[i],game_objects_list, tanks_list, space, current_map)
-            ai_list.append(inst_ai)
-    
+        inst_ai = ai.Ai(tanks_list[i], game_objects_list, tanks_list, space, current_map)
+        ai_list.append(inst_ai)
+
 
 #-- Create the bases
 def create_bases():
@@ -253,9 +252,7 @@ def main_loop():
         #Tank update
         for tank in tanks_list:
             tank.update_screen(screen)
-        #Ai update
-       # for ai in ai_list:
-        #    ai.decide()
+
         
         #Base update
         for bases in bases_list:
@@ -269,14 +266,10 @@ def main_loop():
             if tank.has_won() == True:
                 running = False
         
-        #Ai update
-        ai_list[0].decide()
-        ai_list[0].update_grid_pos()
-
-        #for ai in ai_list:
-         #   ai.decide()
-            
-          #  ai.update_grid_pos()
+        #Ai update     
+        ai_list[1].decide() 
+      #  for i in range(len(ai_list)):
+       #     ai_list[i].decide()
 
 
 
@@ -289,7 +282,7 @@ def main_loop():
 
 
     
- #Index of whcih tank the player controlls 
+#Index of whcih tank the player controlls 
 
 create_grass()
 
@@ -302,7 +295,6 @@ create_bases()
 create_out_of_bounds()
 
 flag = create_flag()
-
 main_loop()
 
 
