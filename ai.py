@@ -48,7 +48,7 @@ class Ai:
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
         next(self.move_cycle)
-    #    self.maybe_shoot()
+        self.maybe_shoot()
 
 
     def maybe_shoot(self):
@@ -56,7 +56,6 @@ class Ai:
             or a wooden box is found, then we shoot. 
         """
 
-        pass # To be implemented
         tank_angle = self.tank.body.angle + math.pi/2
         pos = Vec2d(self.tank.body.position)
 
@@ -65,13 +64,9 @@ class Ai:
         self.space.segment_query_first
         obj = self.space.segment_query_first(start_coordinate,end_coordinate,0,pymunk.ShapeFilter())
         if hasattr(obj, 'shape'):
-            if hasattr(obj.shape.parent, 'parent'):
-                if isinstance(obj,gameobjects.Box) and obj.shape.parent.destructable:
-                    box = obj.shape.parent
-                    self.tank.shoot()
-
-                elif isinstance(obj.shape.tank,  GameObject.tank):
-                    self.tank.shoot()
+            if hasattr(obj.shape, 'parent'):
+                if isinstance(obj.shape.parent, Tank):
+                    self.tank.shoot(self.space)
 
          # Probably done, maybe needs tweaking-Valle
 
@@ -82,7 +77,7 @@ class Ai:
          
         while True:
             self.update_grid_pos()
-            shortest_path = self.short()
+            shortest_path = self.find_shortest_path()
 
             if len(shortest_path) == 0:
                 yield
@@ -117,7 +112,11 @@ class Ai:
             self.tank.stop_moving()
             yield
 
-    def short(self):
+    def find_shortest_path(self):
+        """ A simple Breadth First Search using integer coordinates as our nodes.
+            Edges are calculated as we go, using an external function.
+            TODO: compare paths to find the most efficient path also make it pick up the flag
+        """
         shortest_path = []
         paths = {self.grid_pos.int_tuple: [self.grid_pos]}
         queue = deque()
@@ -145,35 +144,7 @@ class Ai:
                     paths[next_node].append(neibor)
         return shortest_path
 
-    def find_shortest_path(self):
-        """ A simple Breadth First Search using integer coordinates as our nodes.
-            Edges are calculated as we go, using an external function.
-            TODO: compare paths to find the most efficient path also make it pick up the flag
-        """
-        shortest_path = []
-        bfs_queue = deque()
-        bfs_queue.append(self.grid_pos)
-        explored = set(self.grid_pos.int_tuple)
-        theory_pos_tree = {}  
 
-        while bfs_queue:
-            theory_pos = bfs_queue.popleft()
-            if theory_pos == self.get_target_tile(): # if we found the flag
-                while theory_pos != start:
-                    shortest_path.append(theory_pos )
-                    parent = theory_pos_tree[theory_pos.int_tuple]
-                    theory_pos = parent
-                shortest_path.reverse()
-                break
-            for neighbour in self.get_tile_neighbors(theory_pos):
-                if neighbour.int_tuple not in explored: #no backtracking
-                    bfs_queue.appendleft(neighbour)
-                    theory_pos_tree[neighbour.int_tuple] = theory_pos
-                    explored.add(neighbour.int_tuple)
-
-        return deque(shortest_path)
-
-        
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,
             return the position of our home base.
