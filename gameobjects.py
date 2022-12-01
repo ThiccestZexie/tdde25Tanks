@@ -132,6 +132,7 @@ class GamePhysicsObject(GameObject):
 def clamp(min_max, value):
     """ Convenient helper function to bound a value to a specific interval. """
     return min(max(-min_max, value), min_max)
+    
 
 
 class Tank(GamePhysicsObject):
@@ -158,7 +159,7 @@ class Tank(GamePhysicsObject):
         self.flag                 = None                      # This variable is used to access the flag object, if the current tank is carrying the flag
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
- 
+
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1

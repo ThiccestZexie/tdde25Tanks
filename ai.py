@@ -7,6 +7,7 @@ from gameobjects import *
 # NOTE: use only 'map0' during development!
 
 MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
+cooldown_tracker = 0
 
 
 
@@ -47,8 +48,13 @@ class Ai:
 
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
+        global cooldown_tracker
+        cooldown_tracker += 1
+
         next(self.move_cycle)
-        self.maybe_shoot()
+        print(cooldown_tracker)
+        if cooldown_tracker >= 120:
+            self.maybe_shoot()
 
 
     def maybe_shoot(self):
@@ -67,6 +73,9 @@ class Ai:
             if hasattr(obj.shape, 'parent'):
                 if isinstance(obj.shape.parent, Tank):
                     self.game_objects_list.append(self.tank.shoot(self.space))
+                   # global cooldown_tracker
+                   # cooldown_tracker = 0
+
 
          # Probably done, maybe needs tweaking-Valle
 

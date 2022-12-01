@@ -219,9 +219,7 @@ def main_loop():
                 elif event.key == K_RIGHT:
                     tanks_list[player_tank].stop_turning()  
 
-            if event.type == KEYUP or event.type == KEYDOWN:
-                cooldown_tracker += clock.get_time()
-                
+              
         #-- Update physics
         if skip_update == 0:
             #  Loop over all the game objects and update their speed in function of their
@@ -261,7 +259,8 @@ def main_loop():
         for i in range(len(ai_list)):
             ai_list[i].decide()
 
-
+        cooldown_tracker += 1
+        
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
 
