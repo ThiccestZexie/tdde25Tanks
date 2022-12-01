@@ -66,7 +66,7 @@ class Ai:
         if hasattr(obj, 'shape'):
             if hasattr(obj.shape, 'parent'):
                 if isinstance(obj.shape.parent, Tank):
-                    self.tank.shoot(self.space)
+                    self.game_objects_list.append(self.tank.shoot(self.space))
 
          # Probably done, maybe needs tweaking-Valle
 

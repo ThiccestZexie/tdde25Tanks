@@ -155,7 +155,7 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         tank.body.position = tank.parent.start_position
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
-        if bullet or bullet.parent in bullet_list:
+        if bullet in bullet_list:
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet.parent)
     return False
@@ -246,6 +246,8 @@ def main_loop():
         # Update the display of the game objects on the screen
         for obj in game_objects_list:
             obj.update_screen(screen)
+        for bullets in bullet_list:
+            bullets.update_screen(screen)
 
         #Flag update
         for tanks in tanks_list:
@@ -275,9 +277,11 @@ create_grass()
 
 create_boxes()
 
+create_bases()
+
 create_tanks()
 
-create_bases()
+
 
 create_out_of_bounds()
 
