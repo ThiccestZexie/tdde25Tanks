@@ -246,17 +246,6 @@ def main_loop():
         # Update the display of the game objects on the screen
         for obj in game_objects_list:
             obj.update_screen(screen)
-        # Update to display bullets
-        for bullet in bullet_list:
-            bullet.update_screen(screen)
-        #Tank update
-        for tank in tanks_list:
-            tank.update_screen(screen)
-
-        
-        #Base update
-        for bases in bases_list:
-            bases.update_screen(screen)
 
         #Flag update
         for tanks in tanks_list:
@@ -267,10 +256,8 @@ def main_loop():
                 running = False
         
         #Ai update     
-        ai_list[1].decide() 
-      #  for i in range(len(ai_list)):
-       #     ai_list[i].decide()
-
+        for i in range(len(ai_list)):
+            ai_list[i].decide()
 
 
         #   Redisplay the entire screen (see double buffer technique)
@@ -296,6 +283,3 @@ create_out_of_bounds()
 
 flag = create_flag()
 main_loop()
-
-
-

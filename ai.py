@@ -47,8 +47,8 @@ class Ai:
 
     def decide(self):
         """ Main decision function that gets called on every tick of the game. """
-        
         next(self.move_cycle)
+    #    self.maybe_shoot()
 
 
     def maybe_shoot(self):
@@ -57,7 +57,7 @@ class Ai:
         """
 
         pass # To be implemented
-        tank_angle = self.tank.body.angel + math.pi/2
+        tank_angle = self.tank.body.angle + math.pi/2
         pos = Vec2d(self.tank.body.position)
 
         start_coordinate = pos + (0.55 * math.cos(tank_angle), 0.55 * math.sin(tank_angle)) 
@@ -79,9 +79,11 @@ class Ai:
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
         """ 
+         
         while True:
             self.update_grid_pos()
-            shortest_path = self.find_shortest_path()
+            shortest_path = self.short()
+
             if len(shortest_path) == 0:
                 yield
                 continue
@@ -115,7 +117,33 @@ class Ai:
             self.tank.stop_moving()
             yield
 
+    def short(self):
+        shortest_path = []
+        paths = {self.grid_pos.int_tuple: [self.grid_pos]}
+        queue = deque()
+        visited = set()
+        
+        visited.add(self.grid_pos.int_tuple)
+        queue.append(self.grid_pos)
 
+        while queue:
+            node = queue.popleft()
+
+            if node == self.get_target_tile():
+                shortest_path = deque(paths[node.int_tuple])
+                shortest_path.popleft()
+                break
+            for neibor in self.get_tile_neighbors(node):
+                next_node = neibor.int_tuple
+
+                if next_node not in visited: 
+                    queue.append(neibor)
+                    visited.add(next_node)
+                    temp_list = paths[node.int_tuple].copy()
+                    paths[next_node] = temp_list
+
+                    paths[next_node].append(neibor)
+        return shortest_path
 
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
@@ -123,14 +151,12 @@ class Ai:
             TODO: compare paths to find the most efficient path also make it pick up the flag
         """
         shortest_path = []
-       # shortest_path_candidate = []
-        start = self.grid_pos
         bfs_queue = deque()
-        bfs_queue.append(start)
-        explored = set(start.int_tuple)
+        bfs_queue.append(self.grid_pos)
+        explored = set(self.grid_pos.int_tuple)
         theory_pos_tree = {}  
 
-        while len(bfs_queue) > 0:
+        while bfs_queue:
             theory_pos = bfs_queue.popleft()
             if theory_pos == self.get_target_tile(): # if we found the flag
                 while theory_pos != start:
@@ -140,14 +166,14 @@ class Ai:
                 shortest_path.reverse()
                 break
             for neighbour in self.get_tile_neighbors(theory_pos):
-                if neighbour.int_tuple not in explored:
+                if neighbour.int_tuple not in explored: #no backtracking
                     bfs_queue.appendleft(neighbour)
                     theory_pos_tree[neighbour.int_tuple] = theory_pos
                     explored.add(neighbour.int_tuple)
-    
+
         return deque(shortest_path)
 
-            
+        
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,
             return the position of our home base.
@@ -193,20 +219,14 @@ class Ai:
         for i in range(4):
             if self.filter_tile_neighbors(neighbors[i]) == True:
                 filtered_neighboors.append(neighbors[i])
-        print(filtered_neighboors)
         return filtered_neighboors
 
     def filter_tile_neighbors (self, coord):
-        tile = self.get_tile_of_position(coord)
+
         if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
             return False
-        box_type = self.currentmap.boxAt(tile[0], tile[1])
-        if box_type == 1:
+        if self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 2 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
             return False
-      #  if box_type == 3:
-       #     return self.allow_metalbox
         return True
-
-
 
 SimpleAi = Ai # Legacy
