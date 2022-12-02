@@ -241,10 +241,10 @@ class Tank(GamePhysicsObject):
 
 
     def drop_flag(self, flag):
-           self.flag = None
-           flag.is_on_tank = False
-           flag.orientation = 0
-           self.max_speed = Tank.NORMAL_MAX_SPEED 
+        self.flag = None
+        flag.is_on_tank = False
+        flag.orientation = 0
+        self.max_speed = Tank.NORMAL_MAX_SPEED 
 
 
 class Bullet(GamePhysicsObject):
@@ -305,5 +305,3 @@ class Flag(GameVisibleObject):
     def __init__(self, x, y):
         self.is_on_tank   = False
         super().__init__(x, y,  images.flag)
-
-

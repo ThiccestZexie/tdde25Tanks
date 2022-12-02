@@ -102,7 +102,7 @@ def create_tanks():
         game_objects_list.append(tank)
 
     for i in range(1, len(current_map.start_positions)):
-        inst_ai = ai.Ai(tanks_list[i], game_objects_list, tanks_list, space, current_map)
+        inst_ai = ai.Ai(tanks_list[i], game_objects_list, tanks_list, space, current_map, bullet_list)
         ai_list.append(inst_ai)
 
 
@@ -133,20 +133,16 @@ def create_flag():
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
     box  = arb.shapes[1]
-
     if bullet and bullet.parent in bullet_list:
         space.remove(bullet, bullet.body) 
         bullet_list.remove(bullet.parent)
         if box.parent.destructable == True:
             game_objects_list.remove(box.parent)
             space.remove(box, box.body)
-
     return False
 
 handler = space.add_collision_handler(1,3)
 handler.post_solve = collision_bullet_box
-
-
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
@@ -155,9 +151,10 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         tank.body.position = tank.parent.start_position
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
-        if bullet in bullet_list:
+        if bullet.parent in bullet_list:
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet.parent)
+
     return False
 
 handler = space.add_collision_handler(1,2)
@@ -186,7 +183,6 @@ def main_loop():
 
                 elif event.key == K_UP:
                     tanks_list[player_tank].accelerate() 
-
 
                 elif event.key == K_DOWN:
                     tanks_list[player_tank].decelerate()
@@ -279,8 +275,6 @@ create_boxes()
 create_bases()
 
 create_tanks()
-
-
 
 create_out_of_bounds()
 

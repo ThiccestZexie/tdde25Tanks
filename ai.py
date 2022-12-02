@@ -28,13 +28,14 @@ class Ai:
     a breadth first search. Also capable of shooting other tanks and or wooden
     boxes. """
 
-    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap,):
+    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap, bullet_list):
         self.tank               = tank
         self.game_objects_list  = game_objects_list
         self.tanks_list         = tanks_list
         self.space              = space
         self.currentmap         = currentmap
         self.flag = None
+        self.bullet_list        = bullet_list
         self.MAX_X = currentmap.width - 1 
         self.MAX_Y = currentmap.height - 1
 
@@ -50,9 +51,7 @@ class Ai:
         """ Main decision function that gets called on every tick of the game. """
         global cooldown_tracker
         cooldown_tracker += 1
-
         next(self.move_cycle)
-        print(cooldown_tracker)
         if cooldown_tracker >= 120:
             self.maybe_shoot()
 
@@ -72,12 +71,13 @@ class Ai:
         if hasattr(obj, 'shape'):
             if hasattr(obj.shape, 'parent'):
                 if isinstance(obj.shape.parent, Tank):
-                    self.game_objects_list.append(self.tank.shoot(self.space))
-                   # global cooldown_tracker
-                   # cooldown_tracker = 0
+                    self.bullet_list.append(self.tank.shoot(self.space))
+                    global cooldown_tracker
+                    cooldown_tracker = 0
+                elif isinstance(obj.shape.parent, Box) and obj.shape.parent.destructable == True:
+                    self.bullet_list.append(self.tank.shoot(self.space))
+                    cooldown_tracker = 0
 
-
-         # Probably done, maybe needs tweaking-Valle
 
     def move_cycle_gen (self):
         """ A generator that iteratively goes through all the required steps
@@ -141,16 +141,15 @@ class Ai:
                 shortest_path = deque(paths[node.int_tuple])
                 shortest_path.popleft()
                 break
-            for neibor in self.get_tile_neighbors(node):
-                next_node = neibor.int_tuple
+            for neighbor in self.get_tile_neighbors(node):
+                next_node = neighbor.int_tuple
 
                 if next_node not in visited: 
-                    queue.append(neibor)
+                    queue.append(neighbor)
                     visited.add(next_node)
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
-
-                    paths[next_node].append(neibor)
+                    paths[next_node].append(neighbor)
         return shortest_path
 
 
