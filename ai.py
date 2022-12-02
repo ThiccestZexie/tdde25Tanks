@@ -83,7 +83,7 @@ class Ai:
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
         """ 
-         
+
         while True:
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
@@ -124,32 +124,29 @@ class Ai:
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.
-            TODO: compare paths to find the most efficient path also make it pick up the flag
         """
         shortest_path = []
         paths = {self.grid_pos.int_tuple: [self.grid_pos]}
         queue = deque()
         visited = set()
-        
         visited.add(self.grid_pos.int_tuple)
         queue.append(self.grid_pos)
 
         while queue:
             node = queue.popleft()
-
             if node == self.get_target_tile():
                 shortest_path = deque(paths[node.int_tuple])
                 shortest_path.popleft()
                 break
             for neighbor in self.get_tile_neighbors(node):
                 next_node = neighbor.int_tuple
-
                 if next_node not in visited: 
                     queue.append(neighbor)
                     visited.add(next_node)
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
                     paths[next_node].append(neighbor)
+
         return shortest_path
 
 

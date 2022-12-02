@@ -248,8 +248,7 @@ class Tank(GamePhysicsObject):
 
 
 class Bullet(GamePhysicsObject):
-    """TODO fix friction"""
-    NORMAL_MAX_SPEED = 7    
+    NORMAL_MAX_SPEED = 7.5   
     def __init__(self, x,y, orientation, sprite, space, owner):
         super().__init__(x,y, orientation, sprite, space, True)
         self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
@@ -260,6 +259,7 @@ class Bullet(GamePhysicsObject):
     def update_screen(self, screen):
         super().update_screen(screen)
         self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
+
 
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """

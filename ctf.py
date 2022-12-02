@@ -73,7 +73,6 @@ def create_grass():
             background.blit(images.grass,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
 
 
-
 #-- Create the boxes
 def create_boxes():
     for x in range(0, current_map.width):
@@ -86,6 +85,7 @@ def create_boxes():
                 # and the pymunk space
                 box = gameobjects.get_box_with_type(x, y, box_type, space)
                 game_objects_list.append(box)
+
 
 #-- Create the tanks
 def create_tanks():
@@ -146,7 +146,9 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
     if tank.parent.name != bullet.parent.owner:
-        tank.body.position = tank.parent.start_position
+        game_objects_list.remove(tank.parent)
+        game_objects_list.insert(tank)
+       # tank.body.position = tank.parent.start_position
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
         if bullet.parent in bullet_list:
@@ -212,7 +214,7 @@ def main_loop():
                 elif event.key == K_RIGHT:
                     tanks_list[player_tank].stop_turning()  
 
-              
+
         #-- Update physics
         if skip_update == 0:
             #  Loop over all the game objects and update their speed in function of their
@@ -249,31 +251,20 @@ def main_loop():
                 running = False
         
         #Ai update     
-        for i in range(len(ai_list)):
-            ai_list[i].decide()
-
+      #  for i in range(len(ai_list)):
+     #      ai_list[i].decide()
+        ai_list[0].decide()
         cooldown_tracker += 1
         
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
-
         #   Control the game framerate
         clock.tick(FRAMERATE)
 
-
-
-    
-#Index of whcih tank the player controlls 
-
 create_grass()
-
 create_boxes()
-
 create_bases()
-
 create_tanks()
-
 create_out_of_bounds()
-
 flag = create_flag()
 main_loop()
