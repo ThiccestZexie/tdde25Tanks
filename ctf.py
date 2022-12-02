@@ -37,10 +37,8 @@ current_map         = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
-flags_list          = []
 ai_list             = []
 bullet_list         = []
-bases_list          = []
 
 #-- Resize the screen to the size of the current level
 screen = pygame.display.set_mode(current_map.rect().size)
@@ -154,7 +152,6 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if bullet.parent in bullet_list:
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet.parent)
-
     return False
 
 handler = space.add_collision_handler(1,2)
