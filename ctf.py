@@ -145,10 +145,9 @@ handler.post_solve = collision_bullet_box
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
+    
     if tank.parent.name != bullet.parent.owner:
-        game_objects_list.remove(tank.parent)
-        game_objects_list.insert(tank)
-       # tank.body.position = tank.parent.start_position
+        tank.body.position = tank.parent.start_position
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
         if bullet.parent in bullet_list:
@@ -193,7 +192,7 @@ def main_loop():
                     tanks_list[player_tank].turn_right()
                 elif event.key == K_SPACE:
                     global cooldown_tracker
-                    if cooldown_tracker >= 100:
+                    if cooldown_tracker >= 120:
                       bullet_list.append(tanks_list[player_tank].shoot(space))
                       cooldown_tracker = 0
                     
@@ -251,10 +250,10 @@ def main_loop():
                 running = False
         
         #Ai update     
-      #  for i in range(len(ai_list)):
-     #      ai_list[i].decide()
-        ai_list[0].decide()
+        for ai in ai_list:
+           ai.decide()
         cooldown_tracker += 1
+
         
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()

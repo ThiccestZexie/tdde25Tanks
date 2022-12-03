@@ -48,7 +48,9 @@ class Ai:
         self.grid_pos = self.get_tile_of_position(self.tank.body.position)
 
     def decide(self):
-        """ Main decision function that gets called on every tick of the game. """
+        """ Main decision function that gets called on every tick of the game. 
+            TODO: Make the ai realize it died and reset self.move_cycle
+        """
         global cooldown_tracker
         cooldown_tracker += 1
         next(self.move_cycle)

@@ -228,6 +228,7 @@ class Tank(GamePhysicsObject):
                 flag.is_on_tank     = True
                 self.max_speed  = Tank.FLAG_MAX_SPEED
 
+
     def has_won(self):
         """ Check if the current tank has won (if it is has the flag and it is close to its start position). """
         return self.flag != None and (self.start_position - self.body.position).length < 0.5
