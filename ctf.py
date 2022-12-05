@@ -240,18 +240,16 @@ def main_loop():
             obj.update_screen(screen)
         for bullets in bullet_list:
             bullets.update_screen(screen)
-
-        #Flag update
+        #-- Checks for tanks
         for tanks in tanks_list:
-            tanks.try_grab_flag(flag)
-            
+            tanks.try_grab_flag(flag) 
         for tank in tanks_list:
             if tank.has_won() == True:
                 running = False
         
         #Ai update     
         for ai in ai_list:
-           ai.decide()
+            ai.decide()
         cooldown_tracker += 1
 
         

@@ -187,18 +187,13 @@ class Ai:
             or a wooden box.
         """
         neighbors = [] # Find the coordinates of the tiles' four neighbors
-        filtered_neighboors = []
         coord = self.get_tile_of_position(coord_vec)
         neighbors.append(coord + Vec2d(1,0))
         neighbors.append(coord + Vec2d(-1,0))
         neighbors.append(coord + Vec2d(0,-1))
         neighbors.append(coord + Vec2d(0,1))
 
-       # for i in range(4):
-        #    if self.filter_tile_neighbors(neighbors[i]) == True:
-        #        filtered_neighboors.append(neighbors[i])
         return filter(self.filter_tile_neighbors, neighbors)
-       # filtered_neighboors
 
     def filter_tile_neighbors (self, coord):
 
