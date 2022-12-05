@@ -4,6 +4,7 @@ from pymunk import Vec2d
 import gameobjects
 from collections import defaultdict, deque
 from gameobjects import *
+
 # NOTE: use only 'map0' during development!
 
 MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
@@ -146,7 +147,8 @@ class Ai:
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
                     paths[next_node].append(neighbor)
-
+                # if not queue:
+                #     queue = deque{[(self.grid_pos], [self.grid_pos])]}
         return shortest_path
 
 

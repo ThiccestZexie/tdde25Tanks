@@ -21,6 +21,7 @@ space.damping = 0.1 # Adds friction to the ground for all objects
 
 #-- Import from the ctf framework
 import ai
+from ai import *
 import images
 import gameobjects
 import maps
@@ -119,7 +120,16 @@ def create_out_of_bounds():
                 pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
                 pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
     space.add(walls)
-
+#-- Respawn function
+def respawn_tank(tank,respawn_flag=False):
+    tank.body.angle = tank.orientation
+    tank.body.position = tank.start_position
+    tank.body.velocity = pymunk.vec2d(0,0)
+    
+    #här ska respawn shield in
+    # if respawn_flag:
+    #     new_flag_pos = pymunk.vec2d(current_map.flag_position[0], current_map.flag_position[1])
+        
 
 #-- Create the flag
 def create_flag():
@@ -143,19 +153,21 @@ handler = space.add_collision_handler(1,3)
 handler.post_solve = collision_bullet_box
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
-    bullet = arb.shapes[0]
-    tank = arb.shapes[1]
-    if tank.parent.name != bullet.parent.owner:
-        game_objects_list.remove(tank.parent)
-        game_objects_list.insert(tank)
+    bullet = arb.shapes[0].parent
+    tank = arb.shapes[1].parent
+    if tank.name != bullet.owner:
+        # tank.body.position = tank.start_position
+        # tank.body.angle = tank.orientation
+        respawn_tank(tank)
        # tank.body.position = tank.parent.start_position
-        if tank.parent.flag == flag: 
-            gameobjects.Tank.drop_flag(tank.parent, flag)
-        if bullet.parent in bullet_list:
+        if tank.flag == flag: 
+            gameobjects.Tank.drop_flag(tank, flag)
+        if bullet in bullet_list:
             space.remove(bullet, bullet.body)
-            bullet_list.remove(bullet.parent)
+            bullet_list.remove(bullet)
+    ai.find_shortest_path()
     return False
-
+    
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank
 
@@ -251,9 +263,9 @@ def main_loop():
                 running = False
         
         #Ai update     
-      #  for i in range(len(ai_list)):
-     #      ai_list[i].decide()
-        ai_list[0].decide()
+        for i in range(len(ai_list)):
+          ai_list[i].decide()
+        # ai_list[0].decide()
         cooldown_tracker += 1
         
         #   Redisplay the entire screen (see double buffer technique)
