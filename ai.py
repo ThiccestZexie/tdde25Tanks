@@ -152,7 +152,10 @@ class Ai:
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
                     paths[next_node].append(neighbor)
+<<<<<<< HEAD
     
+=======
+>>>>>>> 98171293b4d72b379a1f80871d2729649e390d57
         return shortest_path
 
 

@@ -164,6 +164,7 @@ class Tank(GamePhysicsObject):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
     def respawn(self):
+        self.body.angle = self.start_angle
         self.body.position = self.start_position
         self.body.angle = self.start_angle
         self.stop_moving()
