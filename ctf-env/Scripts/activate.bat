@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\Thicc\Documents\Coding stuff\tdde25-2022-projekt-sg5-05\ctf-env
+set VIRTUAL_ENV=C:\Users\Dator\tdde25-2022-projekt-sg5-05\ctf-env
 
 if not defined PROMPT set PROMPT=$P$G
 

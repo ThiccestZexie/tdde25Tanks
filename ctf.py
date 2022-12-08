@@ -4,6 +4,8 @@ from pygame.color import *
 import pymunk
 from data import *
 from sounds import *
+#from images import *
+
 #----- Initialisation -----#
 
 #-- Initialise the display
@@ -148,6 +150,7 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     
     if tank.parent.name != bullet.parent.owner:
         tank.body.position = tank.parent.start_position
+        #screen.blit(explosion, (tank.body.position))
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
         if bullet.parent in bullet_list:
