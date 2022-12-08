@@ -7,7 +7,7 @@ from gameobjects import *
 
 # NOTE: use only 'map0' during development!
 
-MIN_ANGLE_DIF = math.radians(5) # 3 degrees, a bit more than we can turn each tick
+MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
 cooldown_tracker = 0
 
 
@@ -59,7 +59,10 @@ class Ai:
             self.maybe_shoot()
         cooldown_tracker +=1
 
-
+    def ai_respawn(self):
+        inst_ai = Ai(self.tank, self.game_objects_list, self.tanks_list, self.space, self.currentmap, self.bullet_list)
+        del self
+        return inst_ai
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 
@@ -91,13 +94,12 @@ class Ai:
         while True:
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
-
             if len(shortest_path) == 0:
                 yield
                 continue
             yield
             next_coord = shortest_path.popleft()
-
+            print(next_coord)
             needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
             p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
             if p_angle < -math.pi:
@@ -120,7 +122,7 @@ class Ai:
             while distance > 0.25:
                 distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
-                
+            
             self.tank.stop_moving()
             yield
 
@@ -150,17 +152,7 @@ class Ai:
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
                     paths[next_node].append(neighbor)
-<<<<<<< HEAD
-            if self.tank.died == True:
-                visited.clear()
-                queue.clear()
-                shortest_path.clear()
-                paths.clear()
-                self.tank.died == False
-=======
-                # if not queue:
-                #     queue = deque{[(self.grid_pos], [self.grid_pos])]}
->>>>>>> be4547f7268237410ac67cc7da6be70406ac8f11
+    
         return shortest_path
 
 
