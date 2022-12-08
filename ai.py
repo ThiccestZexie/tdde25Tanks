@@ -6,7 +6,7 @@ from collections import defaultdict, deque
 from gameobjects import *
 # NOTE: use only 'map0' during development!
 
-MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
+MIN_ANGLE_DIF = math.radians(5) # 3 degrees, a bit more than we can turn each tick
 cooldown_tracker = 0
 
 
@@ -51,11 +51,12 @@ class Ai:
         """ Main decision function that gets called on every tick of the game. 
             TODO: Make the ai realize it died and reset self.move_cycle
         """
-        global cooldown_tracker
-        cooldown_tracker += 1
+        global cooldown_tracker        
+        self.update_grid_pos()
         next(self.move_cycle)
         if cooldown_tracker >= 120:
             self.maybe_shoot()
+        cooldown_tracker +=1
 
 
     def maybe_shoot(self):
@@ -103,7 +104,6 @@ class Ai:
                 yield
             elif p_angle > math.pi:
                 self.tank.turn_right()
-                
                 yield
             else:
                 self.tank.turn_right()
@@ -133,6 +133,7 @@ class Ai:
         visited = set()
         visited.add(self.grid_pos.int_tuple)
         queue.append(self.grid_pos)
+   
 
         while queue:
             node = queue.popleft()
@@ -148,7 +149,12 @@ class Ai:
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
                     paths[next_node].append(neighbor)
-
+            if self.tank.died == True:
+                visited.clear()
+                queue.clear()
+                shortest_path.clear()
+                paths.clear()
+                self.tank.died == False
         return shortest_path
 
 

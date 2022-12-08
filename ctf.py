@@ -149,8 +149,7 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     tank = arb.shapes[1]
     
     if tank.parent.name != bullet.parent.owner:
-        tank.body.position = tank.parent.start_position
-        #screen.blit(explosion, (tank.body.position))
+        tank.parent.respawn()
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
         if bullet.parent in bullet_list:
@@ -253,6 +252,7 @@ def main_loop():
         #Ai update     
         for ai in ai_list:
             ai.decide()
+        print(ai_list[1].find_shortest_path())
         cooldown_tracker += 1
 
         
