@@ -166,7 +166,6 @@ class Tank(GamePhysicsObject):
     def respawn(self):
         self.body.angle = self.start_angle
         self.body.position = self.start_position
-        self.body.angle = self.start_angle
         self.stop_moving()
         self.stop_turning() 
     def stop_moving(self):

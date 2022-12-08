@@ -59,10 +59,7 @@ class Ai:
             self.maybe_shoot()
         cooldown_tracker +=1
 
-    def ai_respawn(self):
-        inst_ai = Ai(self.tank, self.game_objects_list, self.tanks_list, self.space, self.currentmap, self.bullet_list)
-        del self
-        return inst_ai
+
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 
@@ -152,10 +149,7 @@ class Ai:
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
                     paths[next_node].append(neighbor)
-<<<<<<< HEAD
-    
-=======
->>>>>>> 98171293b4d72b379a1f80871d2729649e390d57
+
         return shortest_path
 
 

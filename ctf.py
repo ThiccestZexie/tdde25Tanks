@@ -124,21 +124,10 @@ def create_out_of_bounds():
                 pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
                 pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
     space.add(walls)
-<<<<<<< HEAD
         
-=======
-# -- Respawn function
-def respawn_tank(tank,respawn_flag=False):
-    tank.body.angle = tank.orientation
-    tank.body.position = tank.start_position
-    tank.body.velocity = pymunk.vec2d(0,0)
 
-    #här ska respawn shield in
-    # if respawn_flag:
-    #     new_flag_pos = pymunk.vec2d(current_map.flag_position[0], current_map.flag_position[1])
 #-- Main menu
 os.environ['SDL_VIDEO_CENTERED'] = '1'
->>>>>>> 98171293b4d72b379a1f80871d2729649e390d57
 
 
 # Colors
@@ -279,15 +268,11 @@ handler.post_solve = collision_bullet_box
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
-<<<<<<< HEAD
-=======
       
->>>>>>> 98171293b4d72b379a1f80871d2729649e390d57
     if tank.parent.name != bullet.parent.owner:
         tank.parent.respawn()
         if tank.parent.name != player_tank:
             ai_list.append(ai_creator(tank.parent))
-    #    print(ai_list[tank.parent.name].find_shortest_path())
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
         if bullet.parent in bullet_list:
@@ -390,10 +375,6 @@ def main_loop():
         #Ai update     
         for ai in ai_list:
             ai.decide()
-<<<<<<< HEAD
-        print(ai_list[1].find_shortest_path())
-=======
->>>>>>> 98171293b4d72b379a1f80871d2729649e390d57
         cooldown_tracker += 1
 
         
