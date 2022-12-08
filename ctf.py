@@ -120,12 +120,12 @@ def create_out_of_bounds():
                 pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
                 pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
     space.add(walls)
-#-- Respawn function
+# -- Respawn function
 def respawn_tank(tank,respawn_flag=False):
     tank.body.angle = tank.orientation
     tank.body.position = tank.start_position
     tank.body.velocity = pymunk.vec2d(0,0)
-    
+
     #här ska respawn shield in
     # if respawn_flag:
     #     new_flag_pos = pymunk.vec2d(current_map.flag_position[0], current_map.flag_position[1])
@@ -156,16 +156,15 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     bullet = arb.shapes[0].parent
     tank = arb.shapes[1].parent
     if tank.name != bullet.owner:
-        # tank.body.position = tank.start_position
-        # tank.body.angle = tank.orientation
+        # tank.stop_moving()
         respawn_tank(tank)
-       # tank.body.position = tank.parent.start_position
+      
         if tank.flag == flag: 
             gameobjects.Tank.drop_flag(tank, flag)
         if bullet in bullet_list:
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet)
-    ai.find_shortest_path()
+    
     return False
     
 handler = space.add_collision_handler(1,2)
