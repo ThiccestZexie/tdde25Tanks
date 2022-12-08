@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\Thicc\Documents\Coding stuff\tdde25-2022-projekt-sg5-05\ctf-env"
+VIRTUAL_ENV="C:\Users\Dator\tdde25-2022-projekt-sg5-05\ctf-env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

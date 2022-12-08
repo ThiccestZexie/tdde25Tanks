@@ -49,7 +49,9 @@ class Ai:
         self.grid_pos = self.get_tile_of_position(self.tank.body.position)
 
     def decide(self):
-        """ Main decision function that gets called on every tick of the game. """
+        """ Main decision function that gets called on every tick of the game. 
+            TODO: Make the ai realize it died and reset self.move_cycle
+        """
         global cooldown_tracker
         cooldown_tracker += 1
         next(self.move_cycle)
@@ -187,17 +189,13 @@ class Ai:
             or a wooden box.
         """
         neighbors = [] # Find the coordinates of the tiles' four neighbors
-        filtered_neighboors = []
         coord = self.get_tile_of_position(coord_vec)
         neighbors.append(coord + Vec2d(1,0))
         neighbors.append(coord + Vec2d(-1,0))
         neighbors.append(coord + Vec2d(0,-1))
         neighbors.append(coord + Vec2d(0,1))
 
-        for i in range(4):
-            if self.filter_tile_neighbors(neighbors[i]) == True:
-                filtered_neighboors.append(neighbors[i])
-        return filtered_neighboors
+        return filter(self.filter_tile_neighbors, neighbors)
 
     def filter_tile_neighbors (self, coord):
 

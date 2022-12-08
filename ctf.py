@@ -4,6 +4,8 @@ from pygame.color import *
 import pymunk
 from data import *
 from sounds import *
+#from images import *
+
 #----- Initialisation -----#
 
 #-- Initialise the display
@@ -153,6 +155,7 @@ handler = space.add_collision_handler(1,3)
 handler.post_solve = collision_bullet_box
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
+<<<<<<< HEAD
     bullet = arb.shapes[0].parent
     tank = arb.shapes[1].parent
     if tank.name != bullet.owner:
@@ -162,6 +165,17 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if tank.flag == flag: 
             gameobjects.Tank.drop_flag(tank, flag)
         if bullet in bullet_list:
+=======
+    bullet = arb.shapes[0]
+    tank = arb.shapes[1]
+    
+    if tank.parent.name != bullet.parent.owner:
+        tank.body.position = tank.parent.start_position
+        #screen.blit(explosion, (tank.body.position))
+        if tank.parent.flag == flag: 
+            gameobjects.Tank.drop_flag(tank.parent, flag)
+        if bullet.parent in bullet_list:
+>>>>>>> e256683a70f25922a7863a9e95c864b98f8139ca
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet)
     
@@ -204,7 +218,7 @@ def main_loop():
                     tanks_list[player_tank].turn_right()
                 elif event.key == K_SPACE:
                     global cooldown_tracker
-                    if cooldown_tracker >= 100:
+                    if cooldown_tracker >= 120:
                       bullet_list.append(tanks_list[player_tank].shoot(space))
                       cooldown_tracker = 0
                     
@@ -252,20 +266,24 @@ def main_loop():
             obj.update_screen(screen)
         for bullets in bullet_list:
             bullets.update_screen(screen)
-
-        #Flag update
+        #-- Checks for tanks
         for tanks in tanks_list:
-            tanks.try_grab_flag(flag)
-            
+            tanks.try_grab_flag(flag) 
         for tank in tanks_list:
             if tank.has_won() == True:
                 running = False
         
         #Ai update     
+<<<<<<< HEAD
         for i in range(len(ai_list)):
           ai_list[i].decide()
         # ai_list[0].decide()
+=======
+        for ai in ai_list:
+            ai.decide()
+>>>>>>> e256683a70f25922a7863a9e95c864b98f8139ca
         cooldown_tracker += 1
+
         
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()

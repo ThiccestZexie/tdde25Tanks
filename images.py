@@ -3,6 +3,8 @@ import os
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
+pygame.display.init()
+
 def load_image(file):
     """ Load an image from the data directory. """
     file = os.path.join(main_dir, 'data', file)
