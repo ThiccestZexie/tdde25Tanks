@@ -122,15 +122,6 @@ def create_out_of_bounds():
                 pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
                 pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
     space.add(walls)
-# -- Respawn function
-def respawn_tank(tank,respawn_flag=False):
-    tank.body.angle = tank.orientation
-    tank.body.position = tank.start_position
-    tank.body.velocity = pymunk.vec2d(0,0)
-
-    #här ska respawn shield in
-    # if respawn_flag:
-    #     new_flag_pos = pymunk.vec2d(current_map.flag_position[0], current_map.flag_position[1])
         
 
 #-- Create the flag
@@ -155,17 +146,6 @@ handler = space.add_collision_handler(1,3)
 handler.post_solve = collision_bullet_box
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
-<<<<<<< HEAD
-    bullet = arb.shapes[0].parent
-    tank = arb.shapes[1].parent
-    if tank.name != bullet.owner:
-        # tank.stop_moving()
-        respawn_tank(tank)
-      
-        if tank.flag == flag: 
-            gameobjects.Tank.drop_flag(tank, flag)
-        if bullet in bullet_list:
-=======
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
     
@@ -174,7 +154,6 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
         if bullet.parent in bullet_list:
->>>>>>> e256683a70f25922a7863a9e95c864b98f8139ca
             space.remove(bullet, bullet.body)
             bullet_list.remove(bullet)
     
@@ -245,7 +224,7 @@ def main_loop():
             # acceleration.
             for obj in game_objects_list:
                 obj.update()
-            skip_update = 5
+            skip_update = 3
         else:
             skip_update -= 1
 
@@ -273,18 +252,8 @@ def main_loop():
                 running = False
         
         #Ai update     
-<<<<<<< HEAD
-        for i in range(len(ai_list)):
-          ai_list[i].decide()
-        # ai_list[0].decide()
-=======
         for ai in ai_list:
             ai.decide()
-<<<<<<< HEAD
-        print(ai_list[1].find_shortest_path())
-=======
->>>>>>> e256683a70f25922a7863a9e95c864b98f8139ca
->>>>>>> be4547f7268237410ac67cc7da6be70406ac8f11
         cooldown_tracker += 1
 
         
