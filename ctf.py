@@ -1,9 +1,11 @@
 import pygame
-from pygame.locals import *
+from pygame.locals import *  
+import maps
 from pygame.color import *
 import pymunk
 from data import *
-from sounds import *
+import sounds
+
 #from images import *
 
 #----- Initialisation -----#
@@ -73,7 +75,7 @@ def create_grass():
             # The call to the function "blit" will copy the image
             # contained in "images.grass" into the "background"
             # image at the coordinates given as the second argument
-            background.blit(images.grass,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
+            background.blit(images.glenn,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
 
 
 #-- Create the boxes
@@ -128,125 +130,7 @@ def respawn_tank(tank,respawn_flag=False):
     tank.body.position = tank.start_position
     tank.body.velocity = pymunk.vec2d(0,0)
 
-    #här ska respawn shield in
-    # if respawn_flag:
-    #     new_flag_pos = pymunk.vec2d(current_map.flag_position[0], current_map.flag_position[1])
-#-- Main menu
-os.environ['SDL_VIDEO_CENTERED'] = '1'
-
-
-# Colors
-white=(255, 255, 255)
-black=(0, 0, 0)
-gray=(50, 50, 50)
-red=(255, 0, 0)
-green=(0, 255, 0)
-blue=(0, 0, 255)
-yellow=(255, 255, 0)
-
-# Game Fonts
-font = "data/good times rg.otf"
-
-
-# Game Resolution
-screen_width=800
-screen_height=600
-screen=pygame.display.set_mode((screen_width, screen_height))
-
-# Text Renderer
-def text_format(message, textFont, textSize, textColor):
-    newFont=pygame.font.Font(textFont, textSize)
-    newText=newFont.render(message, 0, textColor)
-    return newText
-
-
-
-
-def main_menu():
-
-    menu=True
-    selected="start"
-    
-    while menu:
-        for event in pygame.event.get():
-            if event.type==pygame.QUIT:
-                pygame.quit()
-                quit()
-            if event.type==pygame.KEYDOWN:
-                if event.key==pygame.K_UP:
-                    selected="start"
-                elif event.key==pygame.K_DOWN:
-                    selected="quit"
-                if event.key==pygame.K_RETURN:
-                    if selected=="start":
-                        print("Start")
-                    if selected=="quit":
-                        pygame.quit()
-                        quit()
-    
-        # Main Menu UI
-        screen.fill(red)
-        title=text_format("CTF", font, 90, yellow)
-        if selected=="start":
-            text_start=text_format("START", font, 75, white)
-        else:
-            text_start = text_format("START", font, 75, black)
-        if selected=="quit":
-            text_quit=text_format("QUIT", font, 75, white)
-        else:
-            text_quit = text_format("QUIT", font, 75, black)
-    
-        title_rect=title.get_rect()
-        start_rect=text_start.get_rect()
-        quit_rect=text_quit.get_rect()
-    
-        # Main Menu Text
-        screen.blit(title, (screen_width/2 - (title_rect[2]/2), 80))
-        screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), 300))
-        screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), 360))
-        pygame.display.update()
-        clock.tick(FRAMERATE)
-        pygame.display.set_caption("Main Menu Selection")
-
-
-#-- buttons
-# class Button:
-#     """Create a button, then blit the surface in the while loop"""
-
-#     def __init__(self, text,pos, font, bg="black", feedback=""):
-#         self.x, self.y = pos
-#         self.font = pygame.font.SysFont("data/good times rg.otf", font)
-#         if feedback == "":
-#             self.feedback = "text"
-#         else:
-#             self.feedback = feedback
-#             self.change_text(text, bg)
-
-#     def change_text(self, text, bg="black"):
-#         """Change the text whe you click"""
-#         self.text = self.font.render(text, 1, pygame.Color("White"))
-#         self.size = self.text.get_size()
-#         self.surface = pygame.Surface(self.size)
-#         self.surface.fill(bg)
-#         self.surface.blit(self.text, (0, 0))
-#         self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
-
-#     def show(self):
-#         screen.blit(start_button.surface, (self.x, self.y))
-
-#     def click(self, event):
-#         x, y = pygame.mouse.get_pos()
-#         if event.type == pygame.MOUSEBUTTONDOWN:
-#             if pygame.mouse.get_pressed()[0]:
-#                 if self.rect.collidepoint(x, y):
-#                     self.change_text(self.feedback, bg="red")
-
-# start_button= Button(
-#     "Click here",
-#     (100, 100),
-#     font=30,
-#     bg="navy",
-#     feedback="You clicked me")
+  
 
     #-- Create the flag
 def create_flag():
@@ -272,7 +156,7 @@ handler.post_solve = collision_bullet_box
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
-      
+    
     if tank.parent.name != bullet.parent.owner:
         tank.parent.respawn()
         if tank.parent.flag == flag: 

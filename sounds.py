@@ -9,10 +9,10 @@ def backgroundmusic():
     mixer.music.load(file)
     mixer.music.play(-1)
 
+def play(file):
+    # mixer.init()
+    sound = pygame.mixer.Sound(file)
+    sound.play()
 
-def sound_player(file):
-    file = os.path.join(main_dir, 'data.py', file)
-    mixer.init()
-    sound = mixer.sound(file)
-    sound.play 
 
+# sounds.play("fslip.wav")
