@@ -162,10 +162,13 @@ class Tank(GamePhysicsObject):
         self.start_angle = math.radians(orientation)
         self.health = 3
         self.points = 0
+        self.protection_timer = 0 
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
     def respawn(self):
+        protection_period = 5
+        self.protection_timer = protection_period
         self.body.angle = self.start_angle
         self.body.position = self.start_position
         self.stop_moving()

@@ -280,7 +280,8 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     tank = arb.shapes[1]
 
     if tank.parent.name != bullet.parent.owner:
-        tank.parent.health -= 1
+        if tank.parent.protection_timer == 0:
+            tank.parent.health -= 1
         if tank.parent.health == 0:
             tank.parent.respawn()
         if tank.parent.name != player_tank:
@@ -377,7 +378,6 @@ def main_loop():
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
-
             if event.type ==  KEYDOWN:
                 if event.key == K_ESCAPE:
                     running = False
@@ -417,10 +417,14 @@ def main_loop():
         #-- Checks for tanks
         for tanks in tanks_list:
             tanks.try_grab_flag(flag) 
-        for tank in tanks_list:
-            if tank.has_won() == True:
-                tank.points += 1
+            if tanks.has_won() == True: # was in a different loop
+                tanks.points += 1
                 running = False
+            if tanks.protection_timer > 0:
+                tanks.protection_timer -= 1/FRAMERATE
+                if tanks.protection_timer < 0:
+                    tanks.protection_timer = 0
+
         
         #Ai update     
         for ai in ai_list:
