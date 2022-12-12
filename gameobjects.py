@@ -142,10 +142,12 @@ class Tank(GamePhysicsObject):
 
     # Constant values for the tank, acessed like: Tank.ACCELERATION
     # You can add more constants here if needed later
-    ACCELERATION = 0.4
-    NORMAL_MAX_SPEED = 2.0
+    STAT_INCREASE = 1
+    ACCELERATION = 0.4 
+    NORMAL_MAX_SPEED = 2.0 
     FLAG_MAX_SPEED = NORMAL_MAX_SPEED * 0.5
-
+    MAX_HP = 3
+    BULLET_MAX_SPEED = 7.5 
     def __init__(self, x, y, orientation, sprite, space, name):
         super().__init__(x, y, orientation, sprite, space, True)
         #Define variables used for collision
@@ -160,19 +162,26 @@ class Tank(GamePhysicsObject):
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
         self.start_angle = math.radians(orientation)
-        self.health = 3
+        self.health = Tank.MAX_HP
         self.points = 0
         self.protection_timer = 0 
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
+    def stat_increase(self, value):
+        Tank.NORMAL_MAX_SPEED = Tank.NORMAL_MAX_SPEED * value
+        Tank.BULLET_MAX_SPEED = Tank.BULLET_MAX_SPEED * value
+        Tank.ACCELERATION = Tank.ACCELERATION * value
     def respawn(self):
         protection_period = 5
-        self.protection_timer = protection_period
+        self.protection_timer = protection_period   
+
+        self.health = Tank.MAX_HP
+
         self.body.angle = self.start_angle
         self.body.position = self.start_position
         self.stop_moving()
-        self.stop_turning() 
+        self.stop_turning()     
     def stop_moving(self):
         """ Call this function to make the tank stop moving. """
         self.acceleration  = 0
@@ -259,17 +268,16 @@ class Tank(GamePhysicsObject):
 
 
 class Bullet(GamePhysicsObject):
-    NORMAL_MAX_SPEED = 7.5   
     def __init__(self, x,y, orientation, sprite, space, owner):
         super().__init__(x,y, orientation, sprite, space, True)
-        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
+        self.body.velocity = pymunk.Vec2d(0, Tank.BULLET_MAX_SPEED).rotated(self.body.angle) 
         self.shape.collision_type = 1   
         self.owner = owner
         self.sprite = sprite
         self.shape.parent = self
     def update_screen(self, screen):
         super().update_screen(screen)
-        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
+        self.body.velocity = pymunk.Vec2d(0, Tank.BULLET_MAX_SPEED).rotated(self.body.angle) 
 
 
 class Box(GamePhysicsObject):
