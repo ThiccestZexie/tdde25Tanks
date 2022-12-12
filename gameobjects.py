@@ -168,10 +168,12 @@ class Tank(GamePhysicsObject):
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
+
     def stat_increase(self, value):
         Tank.NORMAL_MAX_SPEED = Tank.NORMAL_MAX_SPEED * value
         Tank.BULLET_MAX_SPEED = Tank.BULLET_MAX_SPEED * value
         Tank.ACCELERATION = Tank.ACCELERATION * value
+
     def respawn(self):
         protection_period = 5
         self.protection_timer = protection_period   
@@ -182,6 +184,7 @@ class Tank(GamePhysicsObject):
         self.body.position = self.start_position
         self.stop_moving()
         self.stop_turning()     
+
     def stop_moving(self):
         """ Call this function to make the tank stop moving. """
         self.acceleration  = 0
@@ -220,7 +223,6 @@ class Tank(GamePhysicsObject):
         self.body.angular_velocity += self.rotation * self.ACCELERATION
         self.body.angular_velocity = clamp(self.max_speed, self.body.angular_velocity)
 
-
     def post_update(self):
         # If the tank carries the flag, then update the positon of the flag
         if(self.flag != None):
@@ -230,7 +232,6 @@ class Tank(GamePhysicsObject):
         # Else ensure that the tank has its normal max speed
         else:
             self.max_speed = Tank.NORMAL_MAX_SPEED
-
 
     def try_grab_flag(self, flag):
         """ Call this function to try to grab the flag, if the flag is not on other tank
@@ -246,19 +247,16 @@ class Tank(GamePhysicsObject):
                 flag.is_on_tank     = True
                 self.max_speed  = Tank.FLAG_MAX_SPEED
 
-
     def has_won(self):
         """ Check if the current tank has won (if it is has the flag and it is close to its start position). """
 
         return self.flag != None and (self.start_position - self.body.position).length < 0.5
-
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
         # boomsound.play()
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
         return bullet
-
 
     def drop_flag(self, flag):
         self.flag = None
@@ -299,7 +297,6 @@ def get_box_with_type(x, y, type, space):
         return Box(x, y, images.woodbox, True, space, True, 1)
     if type == 3: # Creates a movable non-destructable metalbox
         return Box(x, y, images.metalbox, True, space, True, 3)
-
 
 
 class GameVisibleObject(GameObject):

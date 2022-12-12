@@ -10,8 +10,6 @@ from gameobjects import *
 MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
 cooldown_tracker = 0
 
-
-
 def angle_between_vectors(vec1, vec2):
     """ Since Vec2d operates in a cartesian coordinate space we have to
         convert the resulting vector to get the correct angle for our space.
@@ -43,7 +41,6 @@ class Ai:
         self.move_cycle = self.move_cycle_gen()
         self.update_grid_pos()
         self.metal_box = False
-        
         self.tank.stat_increase(Ai.STAT_INCREASE)
     def update_grid_pos(self):
         """ This should only be called in the beginning, or at the end of a move_cycle. """

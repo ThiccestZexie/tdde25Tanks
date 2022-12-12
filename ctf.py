@@ -53,6 +53,10 @@ screen = pygame.display.set_mode(current_map.rect().size)
 #-- Generate the background
 background = pygame.Surface(screen.get_size())
 
+fog_of_war_layer = pygame.Surface((800,600))
+fog_of_war_layer = fog_of_war_layer.convert_alpha()
+fog_of_war_layer.set_alpha(255)
+
 from pygame import mixer
 from data import *
 
@@ -258,7 +262,6 @@ def create_flag():
     return flag
 
 
-
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
     box  = arb.shapes[1]
@@ -424,7 +427,6 @@ def main_loop():
                 tanks.protection_timer -= 1/FRAMERATE
                 if tanks.protection_timer < 0:
                     tanks.protection_timer = 0
-
         
         #Ai update     
         for ai in ai_list:
@@ -448,5 +450,8 @@ create_out_of_bounds()
 flag = create_flag()
 #main_menu()
 #pygame.quit()
+background.blit(fog_of_war_layer, (0,0))
+pygame.draw.circle(fog_of_war_layer, (255,255,255), tanks_list[0].body.position, 200,0)
+
 main_loop()
 quit()
