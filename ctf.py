@@ -35,6 +35,10 @@ FRAMERATE = 120
 #   Cooldown for tankshots
 cooldown_tracker = 0
 player_tank = 0
+#--
+hot_seat_multiplayer = True
+if hot_seat_multiplayer == True:
+    player_2_tank = 1
 #   Define the current level
 current_map         = maps.map0
 #   List of all game objects
@@ -101,10 +105,14 @@ def create_tanks():
         # Add the tank to the list of tanks
         tanks_list.append(tank)
         game_objects_list.append(tank)
-
-    for i in range(1, len(current_map.start_positions)):
-        inst_ai = ai_creator(tanks_list[i])
-        ai_list.append(inst_ai)
+    if hot_seat_multiplayer == False:
+        for i in range(1, len(current_map.start_positions)):
+            inst_ai = ai_creator(tanks_list[i])
+            ai_list.append(inst_ai)
+    else: 
+        for i in range(2, len(current_map.start_positions)):
+            inst_ai = ai_creator(tanks_list[i])
+            ai_list.append(inst_ai)
 
 def ai_creator(tank):
     inst_ai = ai.Ai(tank, game_objects_list, tanks_list, space, current_map, bullet_list)
@@ -250,7 +258,7 @@ def create_flag():
     return flag
 
 
-   
+
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
     box  = arb.shapes[1]
@@ -287,8 +295,77 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank
 
+def player_1(event):
+        
+    if event.type == KEYDOWN:
+        if event.key == K_UP:
+            tanks_list[player_tank].accelerate() 
+
+        elif event.key == K_DOWN:
+            tanks_list[player_tank].decelerate()
+
+        elif event.key == K_LEFT:
+            tanks_list[player_tank].turn_left()
+
+        elif event.key == K_RIGHT:
+            tanks_list[player_tank].turn_right()
+        elif event.key == K_SPACE:
+            global cooldown_tracker
+            if cooldown_tracker >= 120:
+                bullet_list.append(tanks_list[player_tank].shoot(space))
+                cooldown_tracker = 0
+
+        if event.type == KEYUP:
+            if event.key == K_UP:
+                tanks_list[player_tank].stop_moving() 
+                tanks_list[player_tank].stop_turning()
+
+            elif event.key == K_DOWN:
+                tanks_list[player_tank].stop_moving() 
+                tanks_list[player_tank].stop_turning()
+
+            elif event.key == K_LEFT:
+                tanks_list[player_tank].stop_turning()
+
+            elif event.key == K_RIGHT:
+                tanks_list[player_tank].stop_turning()  
 
 
+def player_2(event):
+    if event.type == KEYDOWN:
+        if event.key == K_w:
+            tanks_list[player_2_tank].accelerate() 
+
+        elif event.key == K_s:
+            tanks_list[player_2_tank].decelerate()
+
+        elif event.key == K_a:
+            tanks_list[player_2_tank].turn_left()
+
+        elif event.key == K_d:
+            tanks_list[player_2_tank].turn_right()
+        elif event.key == K_LSHIFT:
+            global cooldown_tracker
+            if cooldown_tracker >= 120:
+                bullet_list.append(tanks_list[player_2_tank].shoot(space))
+                cooldown_tracker = 0
+                
+        
+
+    if event.type == KEYUP:
+        if event.key == K_w:
+            tanks_list[player_2_tank].stop_moving() 
+            tanks_list[player_2_tank].stop_turning()
+
+        elif event.key == K_s:
+            tanks_list[player_2_tank].stop_moving() 
+            tanks_list[player_2_tank].stop_turning()
+
+        elif event.key == K_a:
+            tanks_list[player_2_tank].stop_turning()
+
+        elif event.key == K_d:
+            tanks_list[player_2_tank].stop_turning()  
 #----- Main Loop -----#
 def main_loop():
     running = True 
@@ -298,52 +375,17 @@ def main_loop():
     while running:
         #-- Handle the events
         for event in pygame.event.get():
-            # Check if we receive a QUIT event (for instance, if the user press the
-            # close button of the wiendow) or if the user press the escape key.
-            
             if event.type == QUIT:
-                for tank in tanks_list:
-                    for i in range(len(tanks_list)):
-                        print(f"Player {i +1}: {tank.points}")
                 running = False
-            
+
             if event.type ==  KEYDOWN:
                 if event.key == K_ESCAPE:
                     running = False
-
-                elif event.key == K_UP:
-                    tanks_list[player_tank].accelerate() 
-
-                elif event.key == K_DOWN:
-                    tanks_list[player_tank].decelerate()
-
-                elif event.key == K_LEFT:
-                    tanks_list[player_tank].turn_left()
-
-                elif event.key == K_RIGHT:
-                    tanks_list[player_tank].turn_right()
-                elif event.key == K_SPACE:
-                    global cooldown_tracker
-                    if cooldown_tracker >= 120:
-                      bullet_list.append(tanks_list[player_tank].shoot(space))
-                      cooldown_tracker = 0
-                    
-                
-
-            if event.type == KEYUP:
-                if event.key == K_UP:
-                    tanks_list[player_tank].stop_moving() 
-                    tanks_list[player_tank].stop_turning()
-
-                elif event.key == K_DOWN:
-                    tanks_list[player_tank].stop_moving() 
-                    tanks_list[player_tank].stop_turning()
-
-                elif event.key == K_LEFT:
-                    tanks_list[player_tank].stop_turning()
-
-                elif event.key == K_RIGHT:
-                    tanks_list[player_tank].stop_turning()  
+            if hot_seat_multiplayer == True:
+                player_1(event)
+                player_2(event)
+            else:
+                player_1(event)
 
 
         #-- Update physics
@@ -377,15 +419,14 @@ def main_loop():
             tanks.try_grab_flag(flag) 
         for tank in tanks_list:
             if tank.has_won() == True:
-                tank.points = tank.points + 1
-                for tank in tanks_list:
-                    for i in range(len(tanks_list)):
-                        print(f"Player {i +1}: {tank.points}")
-                #running = False
+                tank.points += 1
+                running = False
         
         #Ai update     
         for ai in ai_list:
             ai.decide()
+
+        global cooldown_tracker
         cooldown_tracker += 1
 
         
