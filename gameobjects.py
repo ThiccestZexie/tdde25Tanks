@@ -160,6 +160,8 @@ class Tank(GamePhysicsObject):
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
         self.start_angle = math.radians(orientation)
+        self.health = 3
+        self.points = 0
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
@@ -235,6 +237,7 @@ class Tank(GamePhysicsObject):
 
     def has_won(self):
         """ Check if the current tank has won (if it is has the flag and it is close to its start position). """
+
         return self.flag != None and (self.start_position - self.body.position).length < 0.5
 
 
@@ -269,21 +272,22 @@ class Bullet(GamePhysicsObject):
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """
 
-    def __init__(self, x, y, sprite, movable, space, destructable):
+    def __init__(self, x, y, sprite, movable, space, destructable, health):
         """ It takes as arguments the coordinate of the starting position of the box (x,y) and the box model (boxmodel). """
         super().__init__(x, y, 0, sprite, space, movable)
         self.destructable = destructable
-        self.shape.collision_type = 3  
+        self.shape.collision_type = 3
+        self.health = health  
 
 
 def get_box_with_type(x, y, type, space):
     (x, y) = (x + 0.5, y + 0.5) # Offsets the coordinate to the center of the tile
     if type == 1: # Creates a non-movable non-destructable rockbox
-        return Box(x, y, images.rockbox, False, space, False)
+        return Box(x, y, images.rockbox, False, space, False, 999)
     if type == 2: # Creates a movable destructable woodbox
-        return Box(x, y, images.woodbox, True, space, True)
+        return Box(x, y, images.woodbox, True, space, True, 1)
     if type == 3: # Creates a movable non-destructable metalbox
-        return Box(x, y, images.metalbox, True, space, False)
+        return Box(x, y, images.metalbox, True, space, True, 3)
 
 
 

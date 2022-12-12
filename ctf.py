@@ -36,7 +36,7 @@ FRAMERATE = 120
 cooldown_tracker = 0
 player_tank = 0
 #   Define the current level
-current_map         = maps.map1
+current_map         = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
@@ -255,22 +255,26 @@ def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
     box  = arb.shapes[1]
     if bullet and bullet.parent in bullet_list:
+        box.parent.health -= 1
         space.remove(bullet, bullet.body) 
         bullet_list.remove(bullet.parent)
         if box.parent.destructable == True:
-            game_objects_list.remove(box.parent)
-            space.remove(box, box.body)
+            if box.parent.health == 0:
+                game_objects_list.remove(box.parent)
+                space.remove(box, box.body)
     return False
 
 handler = space.add_collision_handler(1,3)
-handler.post_solve = collision_bullet_box
+handler.pre_solve = collision_bullet_box
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
-      
+
     if tank.parent.name != bullet.parent.owner:
-        tank.parent.respawn()
+        tank.parent.health -= 1
+        if tank.parent.health == 0:
+            tank.parent.respawn()
         if tank.parent.name != player_tank:
             ai_list.append(ai_creator(tank.parent))
         if tank.parent.flag == flag: 
@@ -298,6 +302,9 @@ def main_loop():
             # close button of the wiendow) or if the user press the escape key.
             
             if event.type == QUIT:
+                for tank in tanks_list:
+                    for i in range(len(tanks_list)):
+                        print(f"Player {i +1}: {tank.points}")
                 running = False
             
             if event.type ==  KEYDOWN:
@@ -370,14 +377,15 @@ def main_loop():
             tanks.try_grab_flag(flag) 
         for tank in tanks_list:
             if tank.has_won() == True:
-                running = False
+                tank.points = tank.points + 1
+                for tank in tanks_list:
+                    for i in range(len(tanks_list)):
+                        print(f"Player {i +1}: {tank.points}")
+                #running = False
         
         #Ai update     
         for ai in ai_list:
-            a = ai.find_shortest_path()
-            print(a)
             ai.decide()
-
         cooldown_tracker += 1
 
         

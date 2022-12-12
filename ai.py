@@ -39,7 +39,6 @@ class Ai:
         self.bullet_list        = bullet_list
         self.MAX_X = currentmap.width - 1 
         self.MAX_Y = currentmap.height - 1
-
         self.path = deque()
         self.move_cycle = self.move_cycle_gen()
         self.update_grid_pos()
@@ -91,6 +90,7 @@ class Ai:
         while True:
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
+            print(shortest_path)
             if len(shortest_path) == 0:
                 yield
                 continue
@@ -199,11 +199,8 @@ class Ai:
         neighbors.append(coord + Vec2d(0,-1))
         neighbors.append(coord + Vec2d(0,1))
         lista = filter_cords(neighbors)
-        if len(lista) == 1:
-            self.metal_box = True
-            return filter(self.filter_tile_neighbors, neighbors)
-        else:
-            return(filter(self.filter_tile_neighbors, neighbors))
+        self.metal_box = True
+        return(filter(self.filter_tile_neighbors, neighbors))
         
 
     def filter_tile_neighbors (self, coord):
@@ -211,9 +208,11 @@ class Ai:
         if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
             return False
         if self.metal_box == True:
-             if self.currentmap.boxAt(coord[0],coord[1]) == 3 or self.currentmap.boxAt(coord[0],coord[1]) == 0 or self.currentmap.boxAt(coord[0],coord[1]) == 2:
+            if self.currentmap.boxAt(coord[0],coord[1]) == 3 or self.currentmap.boxAt(coord[0],coord[1]) == 0 or self.currentmap.boxAt(coord[0],coord[1]) == 2:
                 return True
-        elif self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 2 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
+            else:
+                return False
+        if self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 2 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
             return False
         return True
 
