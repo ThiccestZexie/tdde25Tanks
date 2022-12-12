@@ -10,7 +10,7 @@ from sounds import *
 
 #-- Initialise the display
 pygame.init()
-pygame.display.set_mode()
+pygame.display.set_mode((800, 600))
 
 #-- Initialise the clock
 clock = pygame.time.Clock()
@@ -36,7 +36,7 @@ FRAMERATE = 120
 cooldown_tracker = 0
 player_tank = 0
 #   Define the current level
-current_map         = maps.map0
+current_map         = maps.map1
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
@@ -374,7 +374,10 @@ def main_loop():
         
         #Ai update     
         for ai in ai_list:
+            a = ai.find_shortest_path()
+            print(a)
             ai.decide()
+
         cooldown_tracker += 1
 
         
@@ -390,7 +393,7 @@ create_tanks()
 
 create_out_of_bounds()
 flag = create_flag()
-main_menu()
-pygame.quit()
+#main_menu()
+#pygame.quit()
 main_loop()
 quit()

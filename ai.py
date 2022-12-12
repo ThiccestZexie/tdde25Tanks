@@ -43,7 +43,7 @@ class Ai:
         self.path = deque()
         self.move_cycle = self.move_cycle_gen()
         self.update_grid_pos()
-
+        self.metal_box = False
     def update_grid_pos(self):
         """ This should only be called in the beginning, or at the end of a move_cycle. """
         self.grid_pos = self.get_tile_of_position(self.tank.body.position)
@@ -96,7 +96,6 @@ class Ai:
                 continue
             yield
             next_coord = shortest_path.popleft()
-            print(next_coord)
             needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
             p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
             if p_angle < -math.pi:
@@ -133,7 +132,6 @@ class Ai:
         visited = set()
         visited.add(self.grid_pos.int_tuple)
         queue.append(self.grid_pos)
-   
 
         while queue:
             node = queue.popleft()
@@ -187,20 +185,35 @@ class Ai:
             A bordering square is only considered accessible if it is grass
             or a wooden box.
         """
+        def filter_cords(neighbors):
+            filtered_neighboors = []
+            for i in range(4):
+                if self.filter_tile_neighbors(neighbors[i]) == True:
+                    filtered_neighboors.append(neighbors[i])
+            return filtered_neighboors
+
         neighbors = [] # Find the coordinates of the tiles' four neighbors
         coord = self.get_tile_of_position(coord_vec)
         neighbors.append(coord + Vec2d(1,0))
         neighbors.append(coord + Vec2d(-1,0))
         neighbors.append(coord + Vec2d(0,-1))
         neighbors.append(coord + Vec2d(0,1))
-
-        return filter(self.filter_tile_neighbors, neighbors)
+        lista = filter_cords(neighbors)
+        if len(lista) == 1:
+            self.metal_box = True
+            return filter(self.filter_tile_neighbors, neighbors)
+        else:
+            return(filter(self.filter_tile_neighbors, neighbors))
+        
 
     def filter_tile_neighbors (self, coord):
 
         if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
             return False
-        if self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 2 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
+        if self.metal_box == True:
+             if self.currentmap.boxAt(coord[0],coord[1]) == 3 or self.currentmap.boxAt(coord[0],coord[1]) == 0 or self.currentmap.boxAt(coord[0],coord[1]) == 2:
+                return True
+        elif self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 2 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
             return False
         return True
 
