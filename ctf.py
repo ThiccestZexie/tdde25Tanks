@@ -10,7 +10,7 @@ from sounds import *
 
 #-- Initialise the display
 pygame.init()
-pygame.display.set_mode((800, 600))
+pygame.display.set_mode()
 
 #-- Initialise the clock
 clock = pygame.time.Clock()
@@ -29,16 +29,14 @@ import gameobjects
 import maps
 from pygame import mixer
 #-- Constants
-FRAMERATE = 120
+FRAMERATE = 60
 
 #-- Variables
-#   Cooldown for tankshots
-cooldown_tracker = 0
 player_tank = 0
-#--
-hot_seat_multiplayer = True
+hot_seat_multiplayer = False
 if hot_seat_multiplayer == True:
     player_2_tank = 1
+
 #   Define the current level
 current_map         = maps.map0
 #   List of all game objects
@@ -53,16 +51,17 @@ screen = pygame.display.set_mode(current_map.rect().size)
 #-- Generate the background
 background = pygame.Surface(screen.get_size())
 
-fog_of_war_layer = pygame.Surface((800,600))
-fog_of_war_layer = fog_of_war_layer.convert_alpha()
-fog_of_war_layer.set_alpha(255)
-
 from pygame import mixer
 from data import *
+from pygame.mixer import Sound
 
 
 fail = ('data/Fail.wav')
+pygame.mixer.init()
+background_music = pygame.mixer.music.load("data\Background.wav")
+pygame.mixer.music.play(-1)
 
+hit_sound = Sound("data\Boom.wav")
 # mixer.music.load('Boom.wav')
 # mixer.music.load('Tiptoe.wav')
 # mixer.music.load('data/Fail.wav')
@@ -276,13 +275,14 @@ def collision_bullet_box(arb,space,data):
     return False
 
 handler = space.add_collision_handler(1,3)
-handler.pre_solve = collision_bullet_box
+handler.post_solve = collision_bullet_box
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
 
     if tank.parent.name != bullet.parent.owner:
+        hit_sound.play( )
         if tank.parent.protection_timer == 0:
             tank.parent.health -= 1
         if tank.parent.health == 0:
@@ -314,25 +314,23 @@ def player_1(event):
         elif event.key == K_RIGHT:
             tanks_list[player_tank].turn_right()
         elif event.key == K_SPACE:
-            global cooldown_tracker
-            if cooldown_tracker >= 120:
+            if tanks_list[player_tank].cooldown_tracker >= 120:
                 bullet_list.append(tanks_list[player_tank].shoot(space))
-                cooldown_tracker = 0
 
-        if event.type == KEYUP:
-            if event.key == K_UP:
-                tanks_list[player_tank].stop_moving() 
-                tanks_list[player_tank].stop_turning()
+    if event.type == KEYUP:
+        if event.key == K_UP:
+            tanks_list[player_tank].stop_moving() 
+            tanks_list[player_tank].stop_turning()
 
-            elif event.key == K_DOWN:
-                tanks_list[player_tank].stop_moving() 
-                tanks_list[player_tank].stop_turning()
+        elif event.key == K_DOWN:
+            tanks_list[player_tank].stop_moving() 
+            tanks_list[player_tank].stop_turning()
 
-            elif event.key == K_LEFT:
-                tanks_list[player_tank].stop_turning()
+        elif event.key == K_LEFT:
+            tanks_list[player_tank].stop_turning()
 
-            elif event.key == K_RIGHT:
-                tanks_list[player_tank].stop_turning()  
+        elif event.key == K_RIGHT:
+            tanks_list[player_tank].stop_turning()  
 
 
 def player_2(event):
@@ -349,10 +347,8 @@ def player_2(event):
         elif event.key == K_d:
             tanks_list[player_2_tank].turn_right()
         elif event.key == K_LSHIFT:
-            global cooldown_tracker
-            if cooldown_tracker >= 120:
+            if tanks_list[player_2_tank].cooldown_tracker >= 120:
                 bullet_list.append(tanks_list[player_2_tank].shoot(space))
-                cooldown_tracker = 0
                 
         
 
@@ -387,7 +383,7 @@ def main_loop():
             if hot_seat_multiplayer == True:
                 player_1(event)
                 player_2(event)
-            else:
+            elif hot_seat_multiplayer == False:
                 player_1(event)
 
 
@@ -420,6 +416,7 @@ def main_loop():
         #-- Checks for tanks
         for tanks in tanks_list:
             tanks.try_grab_flag(flag) 
+            tanks.cooldown_tracker += 1
             if tanks.has_won() == True: # was in a different loop
                 tanks.points += 1
                 running = False
@@ -432,9 +429,6 @@ def main_loop():
         for ai in ai_list:
             ai.decide()
 
-        global cooldown_tracker
-        cooldown_tracker += 1
-
         
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
@@ -445,13 +439,9 @@ create_grass()
 create_boxes()
 create_bases()
 create_tanks()
-
 create_out_of_bounds()
 flag = create_flag()
 #main_menu()
 #pygame.quit()
-background.blit(fog_of_war_layer, (0,0))
-pygame.draw.circle(fog_of_war_layer, (255,255,255), tanks_list[0].body.position, 200,0)
-
 main_loop()
 quit()

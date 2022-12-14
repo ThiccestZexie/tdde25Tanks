@@ -160,6 +160,8 @@ class Tank(GamePhysicsObject):
         self.space = space
         self.flag                 = None                      # This variable is used to access the flag object, if the current tank is carrying the flag
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
+        self.bullet_speed     = Tank.BULLET_MAX_SPEED
+        self.cooldown_tracker = 0
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
         self.start_angle = math.radians(orientation)
         self.health = Tank.MAX_HP
@@ -170,9 +172,8 @@ class Tank(GamePhysicsObject):
         self.acceleration = 1
 
     def stat_increase(self, value):
-        Tank.NORMAL_MAX_SPEED = Tank.NORMAL_MAX_SPEED * value
-        Tank.BULLET_MAX_SPEED = Tank.BULLET_MAX_SPEED * value
-        Tank.ACCELERATION = Tank.ACCELERATION * value
+        self.max_speed = self.max_speed * value
+        self.bullet_speed = self.bullet_speed * value
 
     def respawn(self):
         protection_period = 5
@@ -231,7 +232,7 @@ class Tank(GamePhysicsObject):
             self.flag.orientation = -math.degrees(self.body.angle)
         # Else ensure that the tank has its normal max speed
         else:
-            self.max_speed = Tank.NORMAL_MAX_SPEED
+            self.max_speed = self.max_speed
 
     def try_grab_flag(self, flag):
         """ Call this function to try to grab the flag, if the flag is not on other tank
@@ -255,27 +256,29 @@ class Tank(GamePhysicsObject):
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
         # boomsound.play()
-        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
+        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, self.bullet_speed, space, self.name)
+        self.cooldown_tracker = 0
         return bullet
 
     def drop_flag(self, flag):
         self.flag = None
         flag.is_on_tank = False
         flag.orientation = 0
-        self.max_speed = Tank.NORMAL_MAX_SPEED 
+        self.max_speed = self.max_speed 
 
 
 class Bullet(GamePhysicsObject):
-    def __init__(self, x,y, orientation, sprite, space, owner):
+    def __init__(self, x,y, orientation, sprite, max_speed,space, owner):
         super().__init__(x,y, orientation, sprite, space, True)
-        self.body.velocity = pymunk.Vec2d(0, Tank.BULLET_MAX_SPEED).rotated(self.body.angle) 
+        self.body.velocity = pymunk.Vec2d(0, max_speed).rotated(self.body.angle) 
         self.shape.collision_type = 1   
         self.owner = owner
+        self.max_speed = max_speed
         self.sprite = sprite
         self.shape.parent = self
     def update_screen(self, screen):
         super().update_screen(screen)
-        self.body.velocity = pymunk.Vec2d(0, Tank.BULLET_MAX_SPEED).rotated(self.body.angle) 
+        self.body.velocity = pymunk.Vec2d(0, self.max_speed).rotated(self.body.angle) 
 
 
 class Box(GamePhysicsObject):
@@ -296,7 +299,7 @@ def get_box_with_type(x, y, type, space):
     if type == 2: # Creates a movable destructable woodbox
         return Box(x, y, images.woodbox, True, space, True, 1)
     if type == 3: # Creates a movable non-destructable metalbox
-        return Box(x, y, images.metalbox, True, space, True, 3)
+        return Box(x, y, images.metalbox, True, space, False, 3)
 
 
 class GameVisibleObject(GameObject):
