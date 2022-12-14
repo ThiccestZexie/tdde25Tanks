@@ -3,8 +3,6 @@ import pygame
 import pymunk
 import math
 from pygame import mixer
-from sounds import *
-
 
 
 DEBUG = False # Change this to set it in debug mode
@@ -100,7 +98,7 @@ class GamePhysicsObject(GameObject):
         self.body.angle     = math.radians(orientation)       # orientation is provided in degress, but pymunk expects radians.
         self.shape          = pymunk.Poly(self.body, points)  # Create a polygon shape using the corner of the rectangle
         self.shape.parent = self
-
+        
         # Set some value for friction and elasticity, which defines interraction in case of a colision
         #self.shape.friction = 0.5
         #self.shape.elasticity = 0.1
@@ -162,14 +160,19 @@ class Tank(GamePhysicsObject):
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
         self.start_angle = math.radians(orientation)
+        self.score = 0
+        self.hp = 3
+        self.respawn_protection = 0
+        # self.spawnprotection
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
-    def respawn(self):
-        self.body.angle = self.start_angle
+    def respawn(self, respawn_flag = False):
         self.body.position = self.start_position
+        self.body.angle = self.start_angle
         self.stop_moving()
         self.stop_turning() 
+        
     def stop_moving(self):
         """ Call this function to make the tank stop moving. """
         self.acceleration  = 0
@@ -191,6 +194,13 @@ class Tank(GamePhysicsObject):
         """ Call this function to make the tank stop turning. """
         self.rotation = 0
         self.body.angular_velocity = 0
+    
+    def respawn_timer():
+        pass
+
+
+
+
 
     def update(self):
         """ A function to update the objects coordinates. Gets called at every tick of the game. """
@@ -219,6 +229,7 @@ class Tank(GamePhysicsObject):
         else:
             self.max_speed = Tank.NORMAL_MAX_SPEED
 
+   
 
     def try_grab_flag(self, flag):
         """ Call this function to try to grab the flag, if the flag is not on other tank
@@ -242,12 +253,10 @@ class Tank(GamePhysicsObject):
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
-        # sounds.play("slip.wav")
-
+        # boomsound.play()
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
         return bullet
-
-
+     
     def drop_flag(self, flag):
         self.flag = None
         flag.is_on_tank = False

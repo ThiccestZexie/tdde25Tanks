@@ -19,7 +19,7 @@ TILE_SIZE = 40 # Define the default size of tiles
 
 explosion = load_image('explosion.png') # Image of an explosion
 
-grass     = load_image('glenn.jpg') # Image of a grass tile
+grass     = load_image('backgroundimage.jpg') # Image of a grass tile
 glenn     = pygame.transform.scale(grass, (40, 40))
 
 rockbox   = load_image('rockbox.png') # Image of a rock box (wall)

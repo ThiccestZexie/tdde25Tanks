@@ -1,11 +1,9 @@
 import pygame
-from pygame.locals import *  
-import maps
+from pygame.locals import *
 from pygame.color import *
 import pymunk
 from data import *
-import sounds
-
+from sounds import *
 #from images import *
 
 #----- Initialisation -----#
@@ -66,7 +64,177 @@ fail = ('data/Fail.wav')
 # fall = mixer.music.load('Fall.wav')
 # background =  mixer.music.load('Background.wav')
 # tiptoe = mixer.sound('Tiptoe.wav')   
+#här ska respawn shield in
+    # if respawn_flag:
+    #     new_flag_pos = pymunk.vec2d(current_map.flag_position[0], current_map.flag_position[1])
+#-- Main menu
+os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+
+# Colors
+white=(255, 255, 255)
+black=(0, 0, 0)
+gray=(50, 50, 50)
+red=(255, 0, 0)
+green=(0, 255, 0)
+blue=(0, 0, 255)
+yellow=(255, 255, 0)
+
+# Game Fonts
+font = "data/good times rg.otf"
+
+
+# Game Resolution
+screen_width=  1400
+screen_height=790
+bg = pygame.image.load("data/backgroundimage.jpg").convert()
+screen=pygame.display.set_mode((screen_width, screen_height))
+# screen resolution 
+res = (1400,790)
+
+# Text Renderer
+def text_format(message, textFont, textSize, textColor):
+    newFont=pygame.font.Font(textFont, textSize)
+    newText=newFont.render(message, 0, textColor)
+    return newText
+
+def scoreboard():
+    pass
+
+def health_bar():
+    health_list = []
+    #color 
+    red = (255, 0, 0)
+    green = (0, 255, 0)
+    for i in range(0, len(tanks_list)):
+        health_x = tanks_list[i].body.position[0]*30
+        health_y = tanks_list[i].body.position[1]*30
+        health_list.append(pygame.draw.rect(screen, red, (health_x + 10, health_y + 10, 10, 10)))
+        health_list.append(pygame.draw.rect(screen, green, (health_x + 10, health_y ,tanks_list[i].hp*15, 10)))
+
+def main_menu():
+   
+    menu=True
+    selected="start"
+    indexlist= 0
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type==QUIT:
+                pygame.quit()
+                quit()
+            if event.type==pygame.KEYDOWN:
+
+                if event.key==pygame.K_UP:
+                    indexlist = 0
+                    if indexlist== 0:
+                        selected= "start"
+                        
+                elif event.key==pygame.K_DOWN:
+                    indexlist+=1
+                    if indexlist == 1:
+                        selected="quit"
+                    elif indexlist == 2:
+                        selected = "menu"
+                    elif indexlist == 3:
+                        selected = "map1"
+                    elif indexlist == 4:
+                        selected = "map2"
+                    elif indexlist == 5:
+                        selected = "map3"
+                    
+                if event.key==pygame.K_RETURN:
+                    if selected=="start":
+                        main_loop()
+                    if selected=="quit":
+                        pygame.quit()
+                        quit()
+                    if selected == "menu":
+                        # fog_of_war()
+                        main_loop()
+                    if selected == "map1":
+                        return current_map == maps.map0
+                        # screen = pygame.display.set_mode(current_map.rect().size)
+                    if selected == "map2":
+                        return current_map == maps.map1
+                        # screen = pygame.display.set_mode(current_map.rect().size)
+                    if selected == "map3":
+                        return current_map == maps.map2
+                        # screen = pygame.display.set_mode(current_map.rect().size)
+                        # background = pygame.Surface(screen.get_size())
+
+        # Main Menu UI
+        screen.fill(gray)
+        screen.blit(pygame.transform.scale(images.grass, (screen_width, screen_height)), (0, 0))
+        title=text_format("CTF", font, 90, yellow)
+        if selected=="start":
+            text_start=text_format("START", font, 75, white)
+        else:
+            text_start = text_format("START", font, 75, black)
+        if selected=="quit":
+            text_quit=text_format("QUIT", font, 75, white)
+        else:
+            text_quit = text_format("QUIT", font, 75, black)
+        if selected == "menu":
+            text_menu = text_format("OPTIONS", font, 75, white)
+        else:
+            text_menu = text_format("OPTIONS", font, 75, black)
+        
+        if selected == "map1":
+            text_map1 = text_format("MAP1", font, 75, white)
+        else:
+            text_map1 = text_format("MAP1", font, 75, black)
+        if selected == "map2":
+            text_map2 = text_format("MAP2", font, 75, white)
+        else:
+            text_map2 = text_format("MAP2", font, 75, black)
+        if selected == "map3":
+            text_map3 = text_format("MAP3", font, 75, white)
+        else:
+            text_map3 = text_format("MAP3", font, 75, black)
+
+
+
+        title_rect=title.get_rect()
+        start_rect=text_start.get_rect()
+        quit_rect=text_quit.get_rect()
+        menu_rect = text_menu.get_rect()
+        map1_rect = text_map1.get_rect()
+        map2_rect = text_map2.get_rect()
+        map3_rect = text_map3.get_rect()
+
+
+        screen.blit(title, (screen_width/2 - (title_rect[2]/2), 20))
+        screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), 100))
+        screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), 160))
+        screen.blit(text_menu, (screen_width/2 - (menu_rect[2]/2), 220))
+        screen.blit(text_map1, (screen_width/2 - (map1_rect[2]/2), 280))
+        screen.blit(text_map2, (screen_width/2 - (map2_rect[2]/2), 340))
+        screen.blit(text_map3, (screen_width/2 - (map3_rect[2]/2), 400))
+        pygame.display.update()
+        clock.tick(FRAMERATE)
+        pygame.display.set_caption("Main Menu Selection")
+    return current_map
+
+# def fog_of_war():
     
+        
+#     light=pygame.image.load('data/circle.png')
+#     while True:
+#         for e in pygame.event.get():
+#             if e.type == pygame.QUIT: break
+#         else:
+#             screen.fill(pygame.color.Color('Red'))
+#             for x in range(0, 640, 20):
+#                 pygame.draw.line(screen, pygame.color.Color('Green'), (x, 0), (x, 480), 3)
+#             filter = pygame.surface.Surface((640, 480))
+#             filter.fill(pygame.color.Color('Grey'))
+#             filter.blit(light, map(lambda x: x-50, player_tank.position))
+#             screen.blit(filter, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+#             pygame.display.flip()
+#             continue
+#         break
+
 
 #   Copy the grass tile all over the level area
 def create_grass():
@@ -75,7 +243,7 @@ def create_grass():
             # The call to the function "blit" will copy the image
             # contained in "images.grass" into the "background"
             # image at the coordinates given as the second argument
-            background.blit(images.glenn,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
+            background.blit(images.grass,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
 
 
 #-- Create the boxes
@@ -105,10 +273,12 @@ def create_tanks():
         game_objects_list.append(tank)
 
     for i in range(1, len(current_map.start_positions)):
-        inst_ai = ai.Ai(tanks_list[i], game_objects_list, tanks_list, space, current_map, bullet_list)
+        inst_ai = ai_creator(tanks_list[i])
         ai_list.append(inst_ai)
 
-
+def ai_creator(tank):
+    inst_ai = ai.Ai(tank, game_objects_list, tanks_list, space, current_map, bullet_list)
+    return inst_ai
 #-- Create the bases
 def create_bases():
     for i in range(0,len(current_map.start_positions)):   
@@ -124,21 +294,16 @@ def create_out_of_bounds():
                 pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
                 pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
     space.add(walls)
-# -- Respawn function
-def respawn_tank(tank,respawn_flag=False):
-    tank.body.angle = tank.orientation
-    tank.body.position = tank.start_position
-    tank.body.velocity = pymunk.vec2d(0,0)
+        
 
-  
-
-    #-- Create the flag
+#-- Create the flag
 def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
     game_objects_list.append(flag)
     return flag
 
 
+   
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
     box  = arb.shapes[1]
@@ -157,18 +322,25 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     bullet = arb.shapes[0]
     tank = arb.shapes[1]
     
+    
     if tank.parent.name != bullet.parent.owner:
-        tank.parent.respawn()
-        if tank.parent.flag == flag: 
-            gameobjects.Tank.drop_flag(tank.parent, flag)
-        if bullet.parent in bullet_list:
-            space.remove(bullet, bullet.body)
-            bullet_list.remove(bullet)
-    
-    return False
-    
+        tank.parent.hp -=1
+        if tank.parent.hp == 0:    
+            tank.parent.respawn()
+            if tank.parent.name != player_tank:
+                ai_list.append(ai_creator(tank.parent))
+        #    print(ai_list[tank.parent.name].find_shortest_path())
+            if tank.parent.flag == flag: 
+                gameobjects.Tank.drop_flag(tank.parent, flag)
+            if bullet.parent in bullet_list:
+                space.remove(bullet, bullet.body)
+                bullet_list.remove(bullet.parent)
+        return False
+    tank.hp = 3
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank
+
+
 
 
 
@@ -176,17 +348,17 @@ handler.pre_solve = collision_bullet_tank
 def main_loop():
     running = True 
     skip_update = 0
-                        
+               
 
     while running:
         #-- Handle the events
         for event in pygame.event.get():
             # Check if we receive a QUIT event (for instance, if the user press the
             # close button of the wiendow) or if the user press the escape key.
-            
+             
             if event.type == QUIT:
                 running = False
-            
+           
             if event.type ==  KEYDOWN:
                 if event.key == K_ESCAPE:
                     running = False
@@ -224,15 +396,22 @@ def main_loop():
 
                 elif event.key == K_RIGHT:
                     tanks_list[player_tank].stop_turning()  
-
-
+        def score():
+            for i in range(len(tanks_list)):
+                victory = tanks_list[i]
+                if victory.has_won():
+                    victory.score +=1
+                    for j in tanks_list:
+                        print(j.score)
+                    victory.respawn()
+            score()
         #-- Update physics
         if skip_update == 0:
             #  Loop over all the game objects and update their speed in function of their
             # acceleration.
             for obj in game_objects_list:
                 obj.update()
-            skip_update = 3
+            skip_update = 5
         else:
             skip_update -= 1
 
@@ -257,13 +436,14 @@ def main_loop():
             tanks.try_grab_flag(flag) 
         for tank in tanks_list:
             if tank.has_won() == True:
-                running = False
-        
+                score()
+                # respawn.tank()
         #Ai update     
         for ai in ai_list:
             ai.decide()
+        (ai_list[1].find_shortest_path())
         cooldown_tracker += 1
-
+        health_bar() 
         
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
@@ -274,10 +454,7 @@ create_grass()
 create_boxes()
 create_bases()
 create_tanks()
-
 create_out_of_bounds()
 flag = create_flag()
 main_menu()
-pygame.quit()
 main_loop()
-quit()
