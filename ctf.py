@@ -392,6 +392,7 @@ def main_loop():
     time_limit =  time_in_seconds* FRAMERATE
     total_rounds = 0
     max_rounds = 12
+
     while running:
      
         #-- Handle the events
@@ -462,7 +463,7 @@ def main_loop():
 
         if not hot_seat_multiplayer and fog_of_war == True: 
             create_fog_of_war()
-        #Win cons
+        #-- Display text that updates.
         if win_con_time == True:
             print_text(40, math.floor(time_limit/60), (155,5))
             if time_limit <= 0:
@@ -483,6 +484,5 @@ create_bases()
 create_tanks()
 create_out_of_bounds()
 flag = create_flag()
-
 main_loop()
 quit()
