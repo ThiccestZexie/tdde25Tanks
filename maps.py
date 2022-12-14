@@ -22,7 +22,7 @@ class Map:
     """ Return the type of the box at coordinates (x, y). """
     return self.boxes[y][x]
 
-
+open("data\maps.txt", "r")
 map0 = Map(9, 9, 
                [ [0, 1, 0, 0, 0, 0, 0, 1, 0], 
                  [0, 1, 0, 2, 0, 2, 0, 1, 0], 

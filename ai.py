@@ -57,7 +57,6 @@ class Ai:
         next(self.move_cycle)
         if self.tank.cooldown_tracker >= 120:
             self.maybe_shoot()
-        print(self.tank.cooldown_tracker)
 
 
     def maybe_shoot(self):
@@ -88,7 +87,6 @@ class Ai:
         while True: #Something like as long as nextcoord is within 2 moves from our body otherwise reset or something like that. 
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
-            print(shortest_path)
             if len(shortest_path) == 0:
                 yield
                 continue

@@ -175,7 +175,7 @@ class Tank(GamePhysicsObject):
         self.max_speed = self.max_speed * value
         self.bullet_speed = self.bullet_speed * value
 
-    def respawn(self):
+    def respawn(self,flag):
         protection_period = 5
         self.protection_timer = protection_period   
 
@@ -185,6 +185,7 @@ class Tank(GamePhysicsObject):
         self.body.position = self.start_position
         self.stop_moving()
         self.stop_turning()     
+        self.drop_flag(flag)
 
     def stop_moving(self):
         """ Call this function to make the tank stop moving. """

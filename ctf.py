@@ -47,7 +47,6 @@ bullet_list         = []
 
 #-- Resize the screen to the size of the current level
 screen = pygame.display.set_mode(current_map.rect().size)
-
 #-- Generate the background
 background = pygame.Surface(screen.get_size())
 
@@ -60,18 +59,8 @@ fail = ('data/Fail.wav')
 pygame.mixer.init()
 background_music = pygame.mixer.music.load("data\Background.wav")
 pygame.mixer.music.play(-1)
-
 hit_sound = Sound("data\Boom.wav")
-# mixer.music.load('Boom.wav')
-# mixer.music.load('Tiptoe.wav')
-# mixer.music.load('data/Fail.wav')
-# # mixer.music.load('Slip.wav')
-# mixer.music.load('Background.wav')
-# fail =  mixer.sound('Fail.mp3')
-# fall = mixer.music.load('Fall.wav')
-# background =  mixer.music.load('Background.wav')
-# tiptoe = mixer.sound('Tiptoe.wav')   
-    
+
 
 #   Copy the grass tile all over the level area
 def create_grass():
@@ -117,15 +106,19 @@ def create_tanks():
             inst_ai = ai_creator(tanks_list[i])
             ai_list.append(inst_ai)
 
+
 def ai_creator(tank):
     inst_ai = ai.Ai(tank, game_objects_list, tanks_list, space, current_map, bullet_list)
     return inst_ai
+
+
 #-- Create the bases
 def create_bases():
     for i in range(0,len(current_map.start_positions)):   
         pos_base = current_map.start_positions[i]
         bases = gameobjects.GameVisibleObject(pos_base[0], pos_base[1], images.bases[i])
         game_objects_list.append(bases)
+
 
 #-- Create out of bound walls
 def create_out_of_bounds():
@@ -135,8 +128,19 @@ def create_out_of_bounds():
                 pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
                 pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
     space.add(walls)
-        
 
+
+def create_fog_of_war():
+        screen_width, screen_height = screen.get_size()
+        radius = min(screen_width, screen_height)
+        fog_of_war = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+        fog_of_war.fill((0, 0, 0))
+        pygame.draw.circle(fog_of_war, (0,0,0, 100), (radius, radius), 150)
+        fog_of_war_rect = fog_of_war.get_rect()
+        fog_of_war_rect.center = physics_to_display(tanks_list[player_tank].body.position)
+
+        # Draw the fog of war over the game screen
+        screen.blit(fog_of_war, fog_of_war_rect)
 #-- Main menu
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -286,7 +290,7 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if tank.parent.protection_timer == 0:
             tank.parent.health -= 1
         if tank.parent.health == 0:
-            tank.parent.respawn()
+            tank.parent.respawn(flag)
         if tank.parent.name != player_tank:
             ai_list.append(ai_creator(tank.parent))
         if tank.parent.flag == flag: 
@@ -413,27 +417,36 @@ def main_loop():
             obj.update_screen(screen)
         for bullets in bullet_list:
             bullets.update_screen(screen)
+
         #-- Checks for tanks
         for tanks in tanks_list:
+            font = pygame.font.Font(None, 24)
+            text = font.render(str(tanks.points), 1, (255, 0, 0))
+            screen.blit(text, physics_to_display(tanks.start_position))
+
             tanks.try_grab_flag(flag) 
             tanks.cooldown_tracker += 1
-            if tanks.has_won() == True: # was in a different loop
+            if tanks.has_won() == True:
                 tanks.points += 1
-                running = False
+                tanks.respawn(flag)
+                flag.x = current_map.flag_position[0]
+                flag.y = current_map.flag_position[1]                
+            #  running = False
             if tanks.protection_timer > 0:
                 tanks.protection_timer -= 1/FRAMERATE
                 if tanks.protection_timer < 0:
                     tanks.protection_timer = 0
-        
         #Ai update     
         for ai in ai_list:
-            ai.decide()
+            ai.decide()  
+        if not hot_seat_multiplayer: 
+            create_fog_of_war()
 
-        
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
         #   Control the game framerate
         clock.tick(FRAMERATE)
+
 
 create_grass()
 create_boxes()
@@ -441,7 +454,6 @@ create_bases()
 create_tanks()
 create_out_of_bounds()
 flag = create_flag()
-#main_menu()
-#pygame.quit()
+
 main_loop()
 quit()
