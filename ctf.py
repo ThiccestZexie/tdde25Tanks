@@ -33,7 +33,16 @@ FRAMERATE = 60
 
 #-- Variables
 player_tank = 0
+winning_amount = 5
+time_in_seconds = 120 
+
+#-- Options
 hot_seat_multiplayer = False
+fog_of_war = False
+unfair_ai = False
+win_con_time = False
+win_con_total_rounds = True
+win_con_winning = False
 if hot_seat_multiplayer == True:
     player_2_tank = 1
 
@@ -105,10 +114,12 @@ def create_tanks():
         for i in range(2, len(current_map.start_positions)):
             inst_ai = ai_creator(tanks_list[i])
             ai_list.append(inst_ai)
-
+def print_points():
+    for i in range(len(tanks_list)):
+        print(f"Player {i+1}: {tanks_list[i].points}")
 
 def ai_creator(tank):
-    inst_ai = ai.Ai(tank, game_objects_list, tanks_list, space, current_map, bullet_list)
+    inst_ai = ai.Ai(tank, game_objects_list, tanks_list, space, current_map, unfair_ai, bullet_list)
     return inst_ai
 
 
@@ -159,9 +170,9 @@ font = "data/good times rg.otf"
 
 
 # Game Resolution
-screen_width=800
-screen_height=600
-screen=pygame.display.set_mode((screen_width, screen_height))
+#screen_width=800
+#screen_height=600
+#screen=pygame.display.set_mode((screen_width, screen_height))
 
 # Text Renderer
 def text_format(message, textFont, textSize, textColor):
@@ -286,8 +297,8 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     tank = arb.shapes[1]
 
     if tank.parent.name != bullet.parent.owner:
-        hit_sound.play( )
         if tank.parent.protection_timer == 0:
+            hit_sound.play( )
             tank.parent.health -= 1
         if tank.parent.health == 0:
             tank.parent.respawn(flag)
@@ -374,16 +385,20 @@ def player_2(event):
 def main_loop():
     running = True 
     skip_update = 0
-                        
-
+    time_limit =  time_in_seconds* FRAMERATE
+    total_rounds = 0
+    max_rounds = 12
     while running:
+     
         #-- Handle the events
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
             if event.type ==  KEYDOWN:
                 if event.key == K_ESCAPE:
+                    print_points()
                     running = False
+                    break
             if hot_seat_multiplayer == True:
                 player_1(event)
                 player_2(event)
@@ -423,15 +438,18 @@ def main_loop():
             font = pygame.font.Font(None, 24)
             text = font.render(str(tanks.points), 1, (255, 0, 0))
             screen.blit(text, physics_to_display(tanks.start_position))
-
             tanks.try_grab_flag(flag) 
             tanks.cooldown_tracker += 1
             if tanks.has_won() == True:
                 tanks.points += 1
+                total_rounds += 1
+                if tanks.points == winning_amount and win_con_winning == True: 
+                    running = False
+                if total_rounds == max_rounds and win_con_total_rounds == True:
+                    running = False
                 tanks.respawn(flag)
                 flag.x = current_map.flag_position[0]
                 flag.y = current_map.flag_position[1]                
-            #  running = False
             if tanks.protection_timer > 0:
                 tanks.protection_timer -= 1/FRAMERATE
                 if tanks.protection_timer < 0:
@@ -439,8 +457,23 @@ def main_loop():
         #Ai update     
         for ai in ai_list:
             ai.decide()  
-        if not hot_seat_multiplayer: 
+
+        if not hot_seat_multiplayer and fog_of_war == True: 
             create_fog_of_war()
+        #Win cons
+        if win_con_time == True:
+            screen_width, screen_height = screen.get_size()
+
+            timer = pygame.font.Font(None, 40)
+            timer_Text = timer.render(str(math.floor(time_limit/60)), 1, (255, 0, 0))
+            screen.blit(timer_Text, (155, 5)) # Make middle of the screen.
+            if time_limit <= 0:
+                running = Fals
+            time_limit -= 1
+        if win_con_total_rounds == True:
+            round = pygame.font.Font(None, 40)
+            round_text = round.render(str(total_rounds), 1, (255, 0, 0))
+            screen.blit(round_text, (170, 5)) # Make middle of the screen.
 
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()

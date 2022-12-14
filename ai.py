@@ -27,7 +27,7 @@ class Ai:
     a breadth first search. Also capable of shooting other tanks and or wooden
     boxes. """
     STAT_INCREASE = 1.3
-    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap, bullet_list):
+    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap, unfair_ai, bullet_list):
         self.tank               = tank
         self.game_objects_list  = game_objects_list
         self.tanks_list         = tanks_list
@@ -44,7 +44,8 @@ class Ai:
             self.metal_box = True
         else:
             self.metal_box = False
-        self.tank.stat_increase(Ai.STAT_INCREASE)
+        if unfair_ai == True:
+            self.tank.stat_increase(Ai.STAT_INCREASE)
     def update_grid_pos(self):
         """ This should only be called in the beginning, or at the end of a move_cycle. """
         self.grid_pos = self.get_tile_of_position(self.tank.body.position)
