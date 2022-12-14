@@ -181,6 +181,10 @@ def text_format(message, textFont, textSize, textColor):
     return newText
 
 
+def print_text(font_size, input_text, screen_pos):
+    font = pygame.font.Font(None, font_size)
+    display_text = font.render(str(input_text), 1, (255,0,0))
+    screen.blit(display_text, screen_pos)
 
 
 def main_menu():
@@ -435,9 +439,7 @@ def main_loop():
 
         #-- Checks for tanks
         for tanks in tanks_list:
-            font = pygame.font.Font(None, 24)
-            text = font.render(str(tanks.points), 1, (255, 0, 0))
-            screen.blit(text, physics_to_display(tanks.start_position))
+            print_text(24,tanks.points, physics_to_display(tanks.start_position))
             tanks.try_grab_flag(flag) 
             tanks.cooldown_tracker += 1
             if tanks.has_won() == True:
@@ -462,24 +464,18 @@ def main_loop():
             create_fog_of_war()
         #Win cons
         if win_con_time == True:
-            screen_width, screen_height = screen.get_size()
-
-            timer = pygame.font.Font(None, 40)
-            timer_Text = timer.render(str(math.floor(time_limit/60)), 1, (255, 0, 0))
-            screen.blit(timer_Text, (155, 5)) # Make middle of the screen.
+            print_text(40, math.floor(time_limit/60), (155,5))
             if time_limit <= 0:
-                running = Fals
+                running = False
             time_limit -= 1
+
         if win_con_total_rounds == True:
-            round = pygame.font.Font(None, 40)
-            round_text = round.render(str(total_rounds), 1, (255, 0, 0))
-            screen.blit(round_text, (170, 5)) # Make middle of the screen.
+            print_text(40, total_rounds, (170,5))
 
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
         #   Control the game framerate
         clock.tick(FRAMERATE)
-
 
 create_grass()
 create_boxes()
