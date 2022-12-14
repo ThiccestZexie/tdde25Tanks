@@ -59,7 +59,10 @@ class Ai:
         if self.tank.cooldown_tracker >= 120:
             self.maybe_shoot()
 
-
+    def ai_respawn(self):
+        inst_ai = Ai(self.tank, self.game_objects_list, self.tanks_list, self.space, self.currentmap, self.bullet_list)
+        del self
+        return inst_ai
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 

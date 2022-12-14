@@ -38,7 +38,7 @@ time_in_seconds = 120
 
 #-- Options
 hot_seat_multiplayer = False
-fog_of_war = False
+fog_of_war = True
 unfair_ai = False
 win_con_time = False
 win_con_total_rounds = True
@@ -152,6 +152,13 @@ def create_fog_of_war():
 
         # Draw the fog of war over the game screen
         screen.blit(fog_of_war, fog_of_war_rect)
+
+
+
+def print_text(font_size, input_text, screen_pos):
+    font = pygame.font.Font(None, font_size)
+    display_text = font.render(str(input_text), 1, (255,0,0))
+    screen.blit(display_text, screen_pos)
 #-- Main menu
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -170,9 +177,12 @@ font = "data/good times rg.otf"
 
 
 # Game Resolution
-#screen_width=800
-#screen_height=600
-#screen=pygame.display.set_mode((screen_width, screen_height))
+screen_width=  1400
+screen_height=790
+bg = pygame.image.load("data/backgroundimage.jpg").convert()
+screen=pygame.display.set_mode((screen_width, screen_height))
+# screen resolution 
+res = (1400,790)
 
 # Text Renderer
 def text_format(message, textFont, textSize, textColor):
@@ -181,36 +191,61 @@ def text_format(message, textFont, textSize, textColor):
     return newText
 
 
-def print_text(font_size, input_text, screen_pos):
-    font = pygame.font.Font(None, font_size)
-    display_text = font.render(str(input_text), 1, (255,0,0))
-    screen.blit(display_text, screen_pos)
-
 
 def main_menu():
-
+   
     menu=True
     selected="start"
-    
+    indexlist= 0
+
     while menu:
         for event in pygame.event.get():
-            if event.type==pygame.QUIT:
+            if event.type==QUIT:
                 pygame.quit()
                 quit()
             if event.type==pygame.KEYDOWN:
+
                 if event.key==pygame.K_UP:
-                    selected="start"
+                    indexlist = 0
+                    if indexlist== 0:
+                        selected= "start"
+                        
                 elif event.key==pygame.K_DOWN:
-                    selected="quit"
+                    indexlist+=1
+                    if indexlist == 1:
+                        selected="quit"
+                    elif indexlist == 2:
+                        selected = "menu"
+                    elif indexlist == 3:
+                        selected = "map1"
+                    elif indexlist == 4:
+                        selected = "map2"
+                    elif indexlist == 5:
+                        selected = "map3"
+                    
                 if event.key==pygame.K_RETURN:
                     if selected=="start":
-                        print("Start")
+                        main_loop()
                     if selected=="quit":
                         pygame.quit()
                         quit()
-    
+                    if selected == "menu":
+                        # fog_of_war()
+                        main_loop()
+                    if selected == "map1":
+                        return current_map == maps.map0
+                        # screen = pygame.display.set_mode(current_map.rect().size)
+                    if selected == "map2":
+                        return current_map == maps.map1
+                        # screen = pygame.display.set_mode(current_map.rect().size)
+                    if selected == "map3":
+                        return current_map == maps.map2
+                        # screen = pygame.display.set_mode(current_map.rect().size)
+                        # background = pygame.Surface(screen.get_size())
+
         # Main Menu UI
-        screen.fill(red)
+        screen.fill(gray)
+        screen.blit(pygame.transform.scale(images.grass, (screen_width, screen_height)), (0, 0))
         title=text_format("CTF", font, 90, yellow)
         if selected=="start":
             text_start=text_format("START", font, 75, white)
@@ -220,66 +255,76 @@ def main_menu():
             text_quit=text_format("QUIT", font, 75, white)
         else:
             text_quit = text_format("QUIT", font, 75, black)
-    
+        if selected == "menu":
+            text_menu = text_format("OPTIONS", font, 75, white)
+        else:
+            text_menu = text_format("OPTIONS", font, 75, black)
+        
+        if selected == "map1":
+            text_map1 = text_format("MAP1", font, 75, white)
+        else:
+            text_map1 = text_format("MAP1", font, 75, black)
+        if selected == "map2":
+            text_map2 = text_format("MAP2", font, 75, white)
+        else:
+            text_map2 = text_format("MAP2", font, 75, black)
+        if selected == "map3":
+            text_map3 = text_format("MAP3", font, 75, white)
+        else:
+            text_map3 = text_format("MAP3", font, 75, black)
+
+
+
         title_rect=title.get_rect()
         start_rect=text_start.get_rect()
         quit_rect=text_quit.get_rect()
-    
-        # Main Menu Text
-        screen.blit(title, (screen_width/2 - (title_rect[2]/2), 80))
-        screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), 300))
-        screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), 360))
+        menu_rect = text_menu.get_rect()
+        map1_rect = text_map1.get_rect()
+        map2_rect = text_map2.get_rect()
+        map3_rect = text_map3.get_rect()
+
+
+        screen.blit(title, (screen_width/2 - (title_rect[2]/2), 20))
+        screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), 100))
+        screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), 160))
+        screen.blit(text_menu, (screen_width/2 - (menu_rect[2]/2), 220))
+        screen.blit(text_map1, (screen_width/2 - (map1_rect[2]/2), 280))
+        screen.blit(text_map2, (screen_width/2 - (map2_rect[2]/2), 340))
+        screen.blit(text_map3, (screen_width/2 - (map3_rect[2]/2), 400))
         pygame.display.update()
         clock.tick(FRAMERATE)
         pygame.display.set_caption("Main Menu Selection")
+    return current_map
+
+def health_bar():
+    health_list = []
+    #color 
+    red = (255, 0, 0)
+    green = (0, 255, 0)
+    for i in range(0, len(tanks_list)):
+        health_x = tanks_list[i].body.position[0]*30
+        health_y = tanks_list[i].body.position[1]*30
+        health_list.append(pygame.draw.rect(screen, red, (health_x + 10, health_y + 10, 10, 10)))
+        health_list.append(pygame.draw.rect(screen, green, (health_x + 10, health_y ,tanks_list[i].hp*15, 10)))
+
+#   Copy the grass tile all over the level area
+def create_grass():
+    for x in range(0, current_map.width):
+        for y in range(0,  current_map.height):
+            # The call to the function "blit" will copy the image
+            # contained in "images.grass" into the "background"
+            # image at the coordinates given as the second argument
+            background.blit(images.grass,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
 
 
-#-- buttons
-# class Button:
-#     """Create a button, then blit the surface in the while loop"""
-
-#     def __init__(self, text,pos, font, bg="black", feedback=""):
-#         self.x, self.y = pos
-#         self.font = pygame.font.SysFont("data/good times rg.otf", font)
-#         if feedback == "":
-#             self.feedback = "text"
-#         else:
-#             self.feedback = feedback
-#             self.change_text(text, bg)
-
-#     def change_text(self, text, bg="black"):
-#         """Change the text whe you click"""
-#         self.text = self.font.render(text, 1, pygame.Color("White"))
-#         self.size = self.text.get_size()
-#         self.surface = pygame.Surface(self.size)
-#         self.surface.fill(bg)
-#         self.surface.blit(self.text, (0, 0))
-#         self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
-
-#     def show(self):
-#         screen.blit(start_button.surface, (self.x, self.y))
-
-#     def click(self, event):
-#         x, y = pygame.mouse.get_pos()
-#         if event.type == pygame.MOUSEBUTTONDOWN:
-#             if pygame.mouse.get_pressed()[0]:
-#                 if self.rect.collidepoint(x, y):
-#                     self.change_text(self.feedback, bg="red")
-
-# start_button= Button(
-#     "Click here",
-#     (100, 100),
-#     font=30,
-#     bg="navy",
-#     feedback="You clicked me")
-
-    #-- Create the flag
+#-- Create the flag
 def create_flag():
     flag = gameobjects.Flag(current_map.flag_position[0], current_map.flag_position[1])
     game_objects_list.append(flag)
     return flag
 
 
+   
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
     box  = arb.shapes[1]
@@ -417,7 +462,7 @@ def main_loop():
             # acceleration.
             for obj in game_objects_list:
                 obj.update()
-            skip_update = 3
+            skip_update = 5
         else:
             skip_update -= 1
 
@@ -484,5 +529,8 @@ create_bases()
 create_tanks()
 create_out_of_bounds()
 flag = create_flag()
+main_menu()
+main_loop()
+
 main_loop()
 quit()

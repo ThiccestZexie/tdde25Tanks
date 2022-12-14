@@ -98,7 +98,7 @@ class GamePhysicsObject(GameObject):
         self.body.angle     = math.radians(orientation)       # orientation is provided in degress, but pymunk expects radians.
         self.shape          = pymunk.Poly(self.body, points)  # Create a polygon shape using the corner of the rectangle
         self.shape.parent = self
-
+        
         # Set some value for friction and elasticity, which defines interraction in case of a colision
         #self.shape.friction = 0.5
         #self.shape.elasticity = 0.1
@@ -183,6 +183,7 @@ class Tank(GamePhysicsObject):
 
         self.body.angle = self.start_angle
         self.body.position = self.start_position
+        self.body.angle = self.start_angle
         self.stop_moving()
         self.stop_turning()     
         self.drop_flag(flag)
@@ -208,6 +209,13 @@ class Tank(GamePhysicsObject):
         """ Call this function to make the tank stop turning. """
         self.rotation = 0
         self.body.angular_velocity = 0
+    
+    def respawn_timer():
+        pass
+
+
+
+
 
     def update(self):
         """ A function to update the objects coordinates. Gets called at every tick of the game. """
@@ -260,7 +268,7 @@ class Tank(GamePhysicsObject):
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, self.bullet_speed, space, self.name)
         self.cooldown_tracker = 0
         return bullet
-
+     
     def drop_flag(self, flag):
         self.flag = None
         flag.is_on_tank = False
