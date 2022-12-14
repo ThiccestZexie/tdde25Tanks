@@ -4,13 +4,11 @@ from pymunk import Vec2d
 import gameobjects
 from collections import defaultdict, deque
 from gameobjects import *
+import maps
 
 # NOTE: use only 'map0' during development!
 
 MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
-cooldown_tracker = 0
-
-
 
 def angle_between_vectors(vec1, vec2):
     """ Since Vec2d operates in a cartesian coordinate space we have to
@@ -28,8 +26,8 @@ class Ai:
     """ A simple ai that finds the shortest path to the target using 
     a breadth first search. Also capable of shooting other tanks and or wooden
     boxes. """
-
-    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap, bullet_list):
+    STAT_INCREASE = 1.3
+    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap, unfair_ai, bullet_list):
         self.tank               = tank
         self.game_objects_list  = game_objects_list
         self.tanks_list         = tanks_list
@@ -39,11 +37,15 @@ class Ai:
         self.bullet_list        = bullet_list
         self.MAX_X = currentmap.width - 1 
         self.MAX_Y = currentmap.height - 1
-
         self.path = deque()
         self.move_cycle = self.move_cycle_gen()
         self.update_grid_pos()
-
+        if self.currentmap == maps.map1 or self.currentmap == maps.map2: 
+            self.metal_box = True
+        else:
+            self.metal_box = False
+        if unfair_ai == True:
+            self.tank.stat_increase(Ai.STAT_INCREASE)
     def update_grid_pos(self):
         """ This should only be called in the beginning, or at the end of a move_cycle. """
         self.grid_pos = self.get_tile_of_position(self.tank.body.position)
@@ -52,12 +54,10 @@ class Ai:
         """ Main decision function that gets called on every tick of the game. 
             TODO: Make the ai realize it died and reset self.move_cycle
         """
-        global cooldown_tracker        
         self.update_grid_pos()
         next(self.move_cycle)
-        if cooldown_tracker >= 120:
+        if self.tank.cooldown_tracker >= 120:
             self.maybe_shoot()
-        cooldown_tracker +=1
 
     def ai_respawn(self):
         inst_ai = Ai(self.tank, self.game_objects_list, self.tanks_list, self.space, self.currentmap, self.bullet_list)
@@ -79,19 +79,16 @@ class Ai:
             if hasattr(obj.shape, 'parent'):
                 if isinstance(obj.shape.parent, Tank):
                     self.bullet_list.append(self.tank.shoot(self.space))
-                    global cooldown_tracker
-                    cooldown_tracker = 0
                 elif isinstance(obj.shape.parent, Box) and obj.shape.parent.destructable == True:
                     self.bullet_list.append(self.tank.shoot(self.space))
-                    cooldown_tracker = 0
 
 
     def move_cycle_gen (self):
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
         """ 
-
-        while True:
+    
+        while True: #Something like as long as nextcoord is within 2 moves from our body otherwise reset or something like that. 
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
             if len(shortest_path) == 0:
@@ -99,7 +96,6 @@ class Ai:
                 continue
             yield
             next_coord = shortest_path.popleft()
-            print(next_coord)
             needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
             p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
             if p_angle < -math.pi:
@@ -119,7 +115,7 @@ class Ai:
             self.tank.stop_turning()
             distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
             self.tank.accelerate()
-            while distance > 0.25:
+            while distance > 0.3:
                 distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
             
@@ -136,7 +132,6 @@ class Ai:
         visited = set()
         visited.add(self.grid_pos.int_tuple)
         queue.append(self.grid_pos)
-   
 
         while queue:
             node = queue.popleft()
@@ -152,7 +147,7 @@ class Ai:
                     temp_list = paths[node.int_tuple].copy()
                     paths[next_node] = temp_list
                     paths[next_node].append(neighbor)
-    
+
         return shortest_path
 
 
@@ -196,13 +191,18 @@ class Ai:
         neighbors.append(coord + Vec2d(-1,0))
         neighbors.append(coord + Vec2d(0,-1))
         neighbors.append(coord + Vec2d(0,1))
-
-        return filter(self.filter_tile_neighbors, neighbors)
+        return(filter(self.filter_tile_neighbors, neighbors))
+        
 
     def filter_tile_neighbors (self, coord):
 
         if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
             return False
+        if self.metal_box == True:
+            if self.currentmap.boxAt(coord[0],coord[1]) == 3 or self.currentmap.boxAt(coord[0],coord[1]) == 0 or self.currentmap.boxAt(coord[0],coord[1]) == 2:
+                return True
+            else:
+                return False
         if self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 2 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
             return False
         return True

@@ -142,10 +142,12 @@ class Tank(GamePhysicsObject):
 
     # Constant values for the tank, acessed like: Tank.ACCELERATION
     # You can add more constants here if needed later
-    ACCELERATION = 0.4
-    NORMAL_MAX_SPEED = 2.0
+    STAT_INCREASE = 1
+    ACCELERATION = 0.4 
+    NORMAL_MAX_SPEED = 2.0 
     FLAG_MAX_SPEED = NORMAL_MAX_SPEED * 0.5
-
+    MAX_HP = 3
+    BULLET_MAX_SPEED = 7.5 
     def __init__(self, x, y, orientation, sprite, space, name):
         super().__init__(x, y, orientation, sprite, space, True)
         #Define variables used for collision
@@ -158,8 +160,11 @@ class Tank(GamePhysicsObject):
         self.space = space
         self.flag                 = None                      # This variable is used to access the flag object, if the current tank is carrying the flag
         self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
+        self.bullet_speed     = Tank.BULLET_MAX_SPEED
+        self.cooldown_tracker = 0
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the fla
         self.start_angle = math.radians(orientation)
+<<<<<<< HEAD
         self.score = 0
         self.hp = 3
         self.respawn_protection = 0
@@ -168,11 +173,37 @@ class Tank(GamePhysicsObject):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
     def respawn(self, respawn_flag = False):
+=======
+        self.health = Tank.MAX_HP
+        self.points = 0
+        self.protection_timer = 0 
+    def accelerate(self):
+        """ Call this function to make the tank move forward. """
+        self.acceleration = 1
+
+    def stat_increase(self, value):
+        self.max_speed = self.max_speed * value
+        self.bullet_speed = self.bullet_speed * value
+
+    def respawn(self,flag):
+        protection_period = 5
+        self.protection_timer = protection_period   
+
+        self.health = Tank.MAX_HP
+
+        self.body.angle = self.start_angle
+>>>>>>> b7931004986db770c7f1f27c664a48aa66b52bd9
         self.body.position = self.start_position
         self.body.angle = self.start_angle
         self.stop_moving()
+<<<<<<< HEAD
         self.stop_turning() 
         
+=======
+        self.stop_turning()     
+        self.drop_flag(flag)
+
+>>>>>>> b7931004986db770c7f1f27c664a48aa66b52bd9
     def stop_moving(self):
         """ Call this function to make the tank stop moving. """
         self.acceleration  = 0
@@ -218,7 +249,6 @@ class Tank(GamePhysicsObject):
         self.body.angular_velocity += self.rotation * self.ACCELERATION
         self.body.angular_velocity = clamp(self.max_speed, self.body.angular_velocity)
 
-
     def post_update(self):
         # If the tank carries the flag, then update the positon of the flag
         if(self.flag != None):
@@ -227,9 +257,13 @@ class Tank(GamePhysicsObject):
             self.flag.orientation = -math.degrees(self.body.angle)
         # Else ensure that the tank has its normal max speed
         else:
+<<<<<<< HEAD
             self.max_speed = Tank.NORMAL_MAX_SPEED
 
    
+=======
+            self.max_speed = self.max_speed
+>>>>>>> b7931004986db770c7f1f27c664a48aa66b52bd9
 
     def try_grab_flag(self, flag):
         """ Call this function to try to grab the flag, if the flag is not on other tank
@@ -245,58 +279,62 @@ class Tank(GamePhysicsObject):
                 flag.is_on_tank     = True
                 self.max_speed  = Tank.FLAG_MAX_SPEED
 
-
     def has_won(self):
         """ Check if the current tank has won (if it is has the flag and it is close to its start position). """
-        return self.flag != None and (self.start_position - self.body.position).length < 0.5
 
+        return self.flag != None and (self.start_position - self.body.position).length < 0.5
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
         # boomsound.play()
-        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, space, self.name)
+        bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, self.bullet_speed, space, self.name)
+        self.cooldown_tracker = 0
         return bullet
+<<<<<<< HEAD
      
+=======
+
+>>>>>>> b7931004986db770c7f1f27c664a48aa66b52bd9
     def drop_flag(self, flag):
         self.flag = None
         flag.is_on_tank = False
         flag.orientation = 0
-        self.max_speed = Tank.NORMAL_MAX_SPEED 
+        self.max_speed = self.max_speed 
 
 
 class Bullet(GamePhysicsObject):
-    NORMAL_MAX_SPEED = 7.5   
-    def __init__(self, x,y, orientation, sprite, space, owner):
+    def __init__(self, x,y, orientation, sprite, max_speed,space, owner):
         super().__init__(x,y, orientation, sprite, space, True)
-        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
+        self.body.velocity = pymunk.Vec2d(0, max_speed).rotated(self.body.angle) 
         self.shape.collision_type = 1   
         self.owner = owner
+        self.max_speed = max_speed
         self.sprite = sprite
         self.shape.parent = self
     def update_screen(self, screen):
         super().update_screen(screen)
-        self.body.velocity = pymunk.Vec2d(0, self.NORMAL_MAX_SPEED).rotated(self.body.angle) 
+        self.body.velocity = pymunk.Vec2d(0, self.max_speed).rotated(self.body.angle) 
 
 
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """
 
-    def __init__(self, x, y, sprite, movable, space, destructable):
+    def __init__(self, x, y, sprite, movable, space, destructable, health):
         """ It takes as arguments the coordinate of the starting position of the box (x,y) and the box model (boxmodel). """
         super().__init__(x, y, 0, sprite, space, movable)
         self.destructable = destructable
-        self.shape.collision_type = 3  
+        self.shape.collision_type = 3
+        self.health = health  
 
 
 def get_box_with_type(x, y, type, space):
     (x, y) = (x + 0.5, y + 0.5) # Offsets the coordinate to the center of the tile
     if type == 1: # Creates a non-movable non-destructable rockbox
-        return Box(x, y, images.rockbox, False, space, False)
+        return Box(x, y, images.rockbox, False, space, False, 999)
     if type == 2: # Creates a movable destructable woodbox
-        return Box(x, y, images.woodbox, True, space, True)
+        return Box(x, y, images.woodbox, True, space, True, 1)
     if type == 3: # Creates a movable non-destructable metalbox
-        return Box(x, y, images.metalbox, True, space, False)
-
+        return Box(x, y, images.metalbox, True, space, False, 3)
 
 
 class GameVisibleObject(GameObject):
