@@ -334,3 +334,14 @@ class Flag(GameVisibleObject):
     def __init__(self, x, y):
         self.is_on_tank   = False
         super().__init__(x, y,  images.flag)
+
+
+class Explosion(GameVisibleObject):
+    """ This class extends GameVisibleObject for representing explosions."""
+
+    def __init__(self, sprite, coordtuple):
+        super().__init__(coordtuple[0], coordtuple[1], sprite)
+        self.tracker = 0
+
+    def update_screen(self, screen):
+        super().update_screen(screen)

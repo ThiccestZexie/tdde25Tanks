@@ -4,6 +4,7 @@ import os
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 pygame.display.init()
+pygame.display.set_mode()
 
 def load_image(file):
     """ Load an image from the data directory. """

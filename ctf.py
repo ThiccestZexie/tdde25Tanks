@@ -4,7 +4,7 @@ from pygame.color import *
 import pymunk
 from data import *
 from sounds import *
-#from images import *
+from images import *
 
 #----- Initialisation -----#
 
@@ -53,6 +53,7 @@ game_objects_list   = []
 tanks_list          = []
 ai_list             = []
 bullet_list         = []
+explosion_list      = []
 
 #-- Resize the screen to the size of the current level
 screen = pygame.display.set_mode(current_map.rect().size)
@@ -66,9 +67,9 @@ from pygame.mixer import Sound
 
 fail = ('data/Fail.wav')
 pygame.mixer.init()
-background_music = pygame.mixer.music.load("data\Background.wav")
-pygame.mixer.music.play(-1)
-hit_sound = Sound("data\Boom.wav")
+#background_music = pygame.mixer.music.load("data\Background.wav")
+#pygame.mixer.music.play(-1)
+#hit_sound = Sound("data\Boom.wav")
 
 
 #   Copy the grass tile all over the level area
@@ -347,8 +348,10 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
 
     if tank.parent.name != bullet.parent.owner:
         if tank.parent.protection_timer == 0:
-            hit_sound.play( )
+            #hit_sound.play( )
             tank.parent.health -= 1
+            explosion_object = gameobjects.Explosion(explosion, tank.parent.body.position)
+            game_objects_list.append(explosion_object)
         if tank.parent.health == 0:
             tank.parent.respawn(flag)
         if tank.parent.name != player_tank:
@@ -483,6 +486,13 @@ def main_loop():
         for bullets in bullet_list:
             bullets.update_screen(screen)
 
+        for explosion in game_objects_list:
+            if isinstance(explosion, Explosion):
+                if explosion.tracker == 20:
+                    game_objects_list.remove(explosion)
+                explosion.tracker += 1
+    
+        
         #-- Checks for tanks
         for tanks in tanks_list:
             print_text(24,tanks.points, physics_to_display(tanks.start_position))
