@@ -56,7 +56,7 @@ class Ai:
         """
         self.update_grid_pos()
         next(self.move_cycle)
-        if self.tank.cooldown_tracker >= 120:
+        if self.tank.cooldown_tracker >= 60:
             self.maybe_shoot()
 
     def ai_respawn(self):
@@ -98,6 +98,7 @@ class Ai:
             next_coord = shortest_path.popleft()
             needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
             p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
+
             if p_angle < -math.pi:
                 self.tank.turn_left()
                 yield
@@ -116,12 +117,17 @@ class Ai:
             distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
             self.tank.accelerate()
             while distance > 0.3:
+                distance_check = pygame.math.Vector2(next_coord).distance_to(pygame.math.Vector2(self.grid_pos))
+                if distance_check >= 1.5:
+                    self.move_cycle = self.move_cycle_gen()
                 distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
-            
             self.tank.stop_moving()
             yield
-
+    def has_moved(self, last_location, next_location):
+        # Calculate the distance between the last location and the next location
+        distance = pygame.math.Vector2(next_location).distance_to(pygame.math.Vector2(last_location))
+        return distance > 0
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.

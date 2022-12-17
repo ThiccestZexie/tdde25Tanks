@@ -2,6 +2,7 @@ import images
 import pygame
 import pymunk
 import math
+from pygame.mixer import Sound
 from pygame import mixer
 
 
@@ -147,7 +148,7 @@ class Tank(GamePhysicsObject):
     NORMAL_MAX_SPEED = 2.0 
     FLAG_MAX_SPEED = NORMAL_MAX_SPEED * 0.5
     MAX_HP = 3
-    BULLET_MAX_SPEED = 7.5 
+    BULLET_MAX_SPEED = 7.5
     def __init__(self, x, y, orientation, sprite, space, name):
         super().__init__(x, y, orientation, sprite, space, True)
         #Define variables used for collision
@@ -264,8 +265,10 @@ class Tank(GamePhysicsObject):
 
     def shoot(self,space):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
-        # boomsound.play()
+    
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, self.bullet_speed, space, self.name)
+        shoot_sound = Sound("data\shooting.wav")
+        shoot_sound.play()
         self.cooldown_tracker = 0
         return bullet
      
@@ -308,7 +311,7 @@ def get_box_with_type(x, y, type, space):
     if type == 2: # Creates a movable destructable woodbox
         return Box(x, y, images.woodbox, True, space, True, 1)
     if type == 3: # Creates a movable non-destructable metalbox
-        return Box(x, y, images.metalbox, True, space, False, 3)
+        return Box(x, y, images.metalbox, True, space, True, 3)
 
 
 class GameVisibleObject(GameObject):
