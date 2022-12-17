@@ -335,6 +335,8 @@ def collision_bullet_box(arb,space,data):
         bullet_list.remove(bullet.parent)
         if box.parent.destructable == True:
             if box.parent.health == 0:
+                explosion_object = gameobjects.Explosion(explosion, box.parent.body.position)
+                game_objects_list.append(explosion_object) # När boxen går sönder läggs explosion till
                 game_objects_list.remove(box.parent)
                 space.remove(box, box.body)
     return False
@@ -350,9 +352,9 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if tank.parent.protection_timer == 0:
             #hit_sound.play( )
             tank.parent.health -= 1
-            explosion_object = gameobjects.Explosion(explosion, tank.parent.body.position)
-            game_objects_list.append(explosion_object)
         if tank.parent.health == 0:
+            explosion_object = gameobjects.Explosion(explosion, tank.parent.body.position)
+            game_objects_list.append(explosion_object) # När tanken dör läggs en explosion till
             tank.parent.respawn(flag)
         if tank.parent.name != player_tank:
             ai_list.append(ai_creator(tank.parent))
