@@ -328,9 +328,9 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
     if tank.parent.name != bullet.parent.owner:
         if tank.parent.protection_timer == 0:
             tank.parent.health -= 1
-            explosion_object = gameobjects.Explosion(explosion, tank.parent.body.position)
-            game_objects_list.append(explosion_object)
         if tank.parent.health == 0:
+            explosion_object = gameobjects.Explosion(explosion, tank.parent.body.position)
+            game_objects_list.append(explosion_object) # När tanken dör läggs en explosion till
             hit_sound.play( )
             tank.parent.respawn(flag)
         if tank.parent.name != player_tank:
