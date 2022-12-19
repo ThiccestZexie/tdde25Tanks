@@ -3,7 +3,6 @@ from pygame.locals import *
 from pygame.color import *
 import pymunk
 from data import *
-from sounds import *
 from images import *
 from pygame import mixer
 from pygame.mixer import Sound
