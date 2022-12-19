@@ -48,7 +48,7 @@ win_con_winning = False
 
 
 #   Define the current level
-current_map         = maps.map1
+current_map         = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
@@ -473,13 +473,17 @@ def main_loop():
         
         #-- Checks for tanks
         for tanks in tanks_list:
-            print_text(24,tanks.points, physics_to_display(tanks.start_position))
+            if win_con_winning == True:
+                print_text(24,f"{tanks.points}/{winning_amount}", physics_to_display(tanks.start_position))
+            if win_con_winning == False:
+                print_text(24,tanks.points, physics_to_display(tanks.start_position))
+
             tanks.try_grab_flag(flag) 
             tanks.cooldown_tracker += 1
             if tanks.has_won() == True:
                 tanks.points += 1
                 total_rounds += 1
-                if tanks.points == winning_amount and win_con_winning == True: 
+                if tanks.points == winning_amount and win_con_winning == True:  # possibly present the winner in a cool way.
                     running = False
                 if total_rounds == max_rounds and win_con_total_rounds == True:
                     running = False
@@ -497,15 +501,18 @@ def main_loop():
         if not hot_seat_multiplayer and fog_of_war == True: 
             create_fog_of_war()
         #-- Display text that updates.
+        #win con rounds go out
+        if win_con_total_rounds == True:
+            print_text(40, (f"{total_rounds}/{max_rounds}"), (screen_width/2 ,5))
+
+        #Win con timer
         if win_con_time == True:
-            print_text(40, math.floor(time_limit/60), (155,5))
+            print_text(40, math.floor(time_limit/60), (screen_width/2,5))
             if time_limit <= 0:
                 running = False
             time_limit -= 1
 
-        if win_con_total_rounds == True:
-            print_text(40, total_rounds, (170,5))
-
+          
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
         #   Control the game framerate
