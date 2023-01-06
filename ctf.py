@@ -490,9 +490,8 @@ def main_loop():
             tank_changes(tanks)
 
         #Ai update     
-        #for ai in ai_list:
-       #    ai.decide()  
-        ai_list[3].decide()
+        for ai in ai_list:
+           ai.decide()  
         if not hot_seat_multiplayer and fog_of_war == True: 
             create_fog_of_war()
         #-- Display text that updates.
