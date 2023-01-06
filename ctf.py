@@ -35,7 +35,7 @@ FRAMERATE = 60
 #-- Variables
 player_tank = 0
 winning_amount = 5
-time_in_seconds = 120 
+time_in_seconds = 5 
 
 #-- Options
 hot_seat_multiplayer = False
@@ -43,12 +43,12 @@ hot_seat_multiplayer = False
 fog_of_war = False
 unfair_ai = False
 win_con_time = False
-win_con_total_rounds = True
-win_con_winning = False
+win_con_total_rounds = False
+win_con_winning = True
 
 
 #   Define the current level
-current_map         = maps.map0
+current_map         = maps.map1
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
@@ -63,11 +63,12 @@ background = pygame.Surface(screen.get_size())
 
 
 
-fail = ('data/Fail.wav')
 pygame.mixer.init()
+
 background_music = pygame.mixer.music.load("data\Background.wav")
 pygame.mixer.music.set_volume(0.05)
 pygame.mixer.music.play(-1)
+
 hit_sound = Sound("data\Boom.wav")
 wood_sound = Sound("data\woodbreak.wav")
 
@@ -136,10 +137,10 @@ def create_bases():
 #-- Create out of bound walls
 def create_out_of_bounds():
     body = pymunk.Body(body_type=pymunk.Body.STATIC)
-    walls  = [pymunk.Segment(body,(0,0),(0, current_map.width),0),
-                pymunk.Segment(body,(0, 0), (current_map.height, 0), 0),
-                pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
-                pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
+    walls  = [pymunk.Segment(body,(0,0),(current_map.width, 0 ),0),
+                pymunk.Segment(body,(0, 0), (0,current_map.height), 0),
+                pymunk.Segment(body,(current_map.width,0), (current_map.width, current_map.height), 0),
+                pymunk.Segment(body,(0,current_map.height), (current_map.width,current_map.height ), 0)]
     space.add(walls)
 
 
@@ -208,7 +209,9 @@ def main_menu():
                 pygame.quit()
                 quit()
             if event.type==pygame.KEYDOWN:
-
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    quit()
                 if event.key==pygame.K_UP:
                     indexlist = 0
                     if indexlist== 0:
@@ -271,16 +274,6 @@ def main_menu():
         clock.tick(FRAMERATE)
         pygame.display.set_caption("Main Menu Selection")
         
-def health_bar():
-    health_list = []
-    #color 
-    red = (255, 0, 0)
-    green = (0, 255, 0)
-    for i in range(0, len(tanks_list)):
-        health_x = tanks_list[i].body.position[0]*30
-        health_y = tanks_list[i].body.position[1]*30
-        health_list.append(pygame.draw.rect(screen, red, (health_x + 10, health_y + 10, 10, 10)))
-        health_list.append(pygame.draw.rect(screen, green, (health_x + 10, health_y ,tanks_list[i].hp*15, 10)))
 
 #   Copy the grass tile all over the level area
 def create_grass():
@@ -298,7 +291,11 @@ def create_flag():
     game_objects_list.append(flag)
     return flag
 
-
+def tank_changes(tank):
+    if tank.protection_timer > 0:
+        tank.protection_timer -= 1/FRAMERATE
+    if tank.protection_timer < 0:
+        tank.protection_timer = 0
 
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
@@ -318,7 +315,7 @@ def collision_bullet_box(arb,space,data):
     return False
 
 handler = space.add_collision_handler(1,3)
-handler.post_solve = collision_bullet_box
+handler.pre_solve = collision_bullet_box
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
@@ -417,7 +414,7 @@ def main_loop():
     skip_update = 0
     time_limit =  time_in_seconds* FRAMERATE
     total_rounds = 0
-    max_rounds = 12
+    max_rounds = 2
 
     while running:
      
@@ -490,14 +487,12 @@ def main_loop():
                 tanks.respawn(flag)
                 flag.x = current_map.flag_position[0]
                 flag.y = current_map.flag_position[1]                
-            if tanks.protection_timer > 0:
-                tanks.protection_timer -= 1/FRAMERATE
-                if tanks.protection_timer < 0:
-                    tanks.protection_timer = 0
-        #Ai update     
-        for ai in ai_list:
-            ai.decide()  
+            tank_changes(tanks)
 
+        #Ai update     
+        #for ai in ai_list:
+       #    ai.decide()  
+        ai_list[3].decide()
         if not hot_seat_multiplayer and fog_of_war == True: 
             create_fog_of_war()
         #-- Display text that updates.
@@ -521,7 +516,6 @@ def main_loop():
 main_menu()
 if hot_seat_multiplayer == True:
     player_2_tank = 1
-
 create_grass()
 create_boxes()
 create_bases()
@@ -529,4 +523,3 @@ create_tanks()
 create_out_of_bounds()
 flag = create_flag()
 main_loop()
-quit()

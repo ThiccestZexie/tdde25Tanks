@@ -8,7 +8,7 @@ import maps
 
 # NOTE: use only 'map0' during development!
 
-MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
+MIN_ANGLE_DIF = math.radians(5) # 3 degrees, a bit more than we can turn each tick
 
 def angle_between_vectors(vec1, vec2):
     """ Since Vec2d operates in a cartesian coordinate space we have to
@@ -54,7 +54,6 @@ class Ai:
         """ Main decision function that gets called on every tick of the game. 
             TODO: Make the ai realize it died and reset self.move_cycle
         """
-        self.update_grid_pos()
         next(self.move_cycle)
         if self.tank.cooldown_tracker >= 60:
             self.maybe_shoot()
@@ -72,7 +71,7 @@ class Ai:
         pos = Vec2d(self.tank.body.position)
 
         start_coordinate = pos + (0.55 * math.cos(tank_angle), 0.55 * math.sin(tank_angle)) 
-        end_coordinate = pos + (69 * math.cos(tank_angle), 69 * math.sin(tank_angle)) #69 is big enough
+        end_coordinate = pos + (65 * math.cos(tank_angle), 65 * math.sin(tank_angle)) #65 is big enough
         self.space.segment_query_first
         obj = self.space.segment_query_first(start_coordinate,end_coordinate,0,pymunk.ShapeFilter())
         if hasattr(obj, 'shape'):
@@ -80,30 +79,37 @@ class Ai:
                 if isinstance(obj.shape.parent, Tank):
                     self.bullet_list.append(self.tank.shoot(self.space))
                 elif isinstance(obj.shape.parent, Box) and obj.shape.parent.destructable == True:
-                    self.bullet_list.append(self.tank.shoot(self.space))
 
+                    if math.dist(pos, obj.shape.parent.body.position) < 2:
+                        self.bullet_list.append(self.tank.shoot(self.space))
+                 
 
-    def move_cycle_gen (self):
+        
+    def move_cycle_gen(self):
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
-        """ 
-    
-        while True: #Something like as long as nextcoord is within 2 moves from our body otherwise reset or something like that. 
+        """
+        while True:
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
-            if len(shortest_path) == 0:
+            if len(shortest_path) <= 0:
+                self.metal_box = True
                 yield
                 continue
+
+            next_coord = shortest_path.popleft() + Vec2d(0.5,0.5)
             yield
-            next_coord = shortest_path.popleft()
-            needed_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
+            needed_angle = angle_between_vectors(self.tank.body.position, next_coord)
             p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
 
             if p_angle < -math.pi:
                 self.tank.turn_left()
                 yield
-            elif p_angle > math.pi:
+            elif 0 > p_angle > -math.pi:
                 self.tank.turn_right()
+                yield
+            elif math.pi > p_angle > 0:
+                self.tank.turn_left()
                 yield
             else:
                 self.tank.turn_right()
@@ -112,18 +118,16 @@ class Ai:
             while abs(p_angle) >= MIN_ANGLE_DIF:
                 p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
                 yield
-
             self.tank.stop_turning()
-            distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
+
             self.tank.accelerate()
-            while distance > 0.3:
-                standing_still = pygame.math.Vector2(self.grid_pos).distance_to(pygame.math.Vector2(next_coord))
-                if standing_still >= 2:
-                    break
-                distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
+            distance = self.tank.body.position.get_distance(next_coord)
+            while distance > 0.25:
+                distance = self.tank.body.position.get_distance(next_coord)
                 yield
             self.tank.stop_moving()
             yield
+
 
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
@@ -206,7 +210,7 @@ class Ai:
                 return True
             else:
                 return False
-        if self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 2 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
+        if self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
             return False
         return True
 

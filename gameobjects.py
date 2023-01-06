@@ -101,8 +101,8 @@ class GamePhysicsObject(GameObject):
         self.shape.parent = self
         
         # Set some value for friction and elasticity, which defines interraction in case of a colision
-        #self.shape.friction = 0.5
-        #self.shape.elasticity = 0.1
+        self.shape.friction = 0.5
+        self.shape.elasticity = 0.1
 
         # Add the object to the physic engine
         if(movable):
@@ -149,6 +149,7 @@ class Tank(GamePhysicsObject):
     FLAG_MAX_SPEED = NORMAL_MAX_SPEED * 0.5
     MAX_HP = 3
     BULLET_MAX_SPEED = 7.5
+    TANK_PROTECTION_SEC = 7
     def __init__(self, x, y, orientation, sprite, space, name):
         super().__init__(x, y, orientation, sprite, space, True)
         #Define variables used for collision
@@ -175,9 +176,9 @@ class Tank(GamePhysicsObject):
     def stat_increase(self, value):
         self.max_speed = self.max_speed * value
         self.bullet_speed = self.bullet_speed * value
-
+        
     def respawn(self,flag):
-        protection_period = 5
+        protection_period = Tank.TANK_PROTECTION_SEC
         self.protection_timer = protection_period   
 
         self.health = Tank.MAX_HP
@@ -216,8 +217,6 @@ class Tank(GamePhysicsObject):
 
 
 
-
-
     def update(self):
         """ A function to update the objects coordinates. Gets called at every tick of the game. """
 
@@ -243,7 +242,8 @@ class Tank(GamePhysicsObject):
         # Else ensure that the tank has its normal max speed
         else:
             self.max_speed = self.max_speed
-
+    def standing_still(self, coord, timer):
+        1
     def try_grab_flag(self, flag):
         """ Call this function to try to grab the flag, if the flag is not on other tank
             and it is close to the current tank, then the current tank will grab the flag.
@@ -310,7 +310,7 @@ def get_box_with_type(x, y, type, space):
         return Box(x, y, images.rockbox, False, space, False, 999)
     if type == 2: # Creates a movable destructable woodbox
         return Box(x, y, images.woodbox, True, space, True, 1)
-    if type == 3: # Creates a movable non-destructable metalbox
+    if type == 3: # Creates a movable destructable metalbox
         return Box(x, y, images.metalbox, True, space, True, 3)
 
 
