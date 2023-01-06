@@ -182,7 +182,7 @@ font = "data/good times rg.otf"
 # Game Resolution
 screen_width=  current_map.rect().size[0]
 screen_height=current_map.rect().size[1]
-bg = pygame.image.load("data/backgroundimage.jpg").convert()
+# bg = pygame.image.load("data/backgroundimage.jpg").convert()
 screen=pygame.display.set_mode(current_map.rect().size)
 # screen resolution 
 res = (screen_width,screen_height)
@@ -306,8 +306,8 @@ def collision_bullet_box(arb,space,data):
         bullet_list.remove(bullet.parent)
         if box.parent.destructable == True:
             if box.parent.health == 0:
-                wood_sound.set_volume(0.05)
-                wood_sound.play()
+                # wood_sound.set_volume(0.05)
+                # wood_sound.play()
                 explosion_object = gameobjects.Explosion(explosion, box.parent.body.position)
                 game_objects_list.append(explosion_object)
                 game_objects_list.remove(box.parent)
@@ -327,7 +327,7 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if tank.parent.health == 0:
             explosion_object = gameobjects.Explosion(explosion, tank.parent.body.position)
             game_objects_list.append(explosion_object) # När tanken dör läggs en explosion till
-            hit_sound.play( )
+            # hit_sound.play( )
             tank.parent.respawn(flag)
         if tank.parent.name != player_tank:
             ai_list.append(ai_creator(tank.parent))
