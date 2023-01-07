@@ -26,7 +26,7 @@ class Ai:
     """ A simple ai that finds the shortest path to the target using 
     a breadth first search. Also capable of shooting other tanks and or wooden
     boxes. """
-    STAT_INCREASE = 1.3
+    STAT_INCREASE = 5
     def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap, unfair_ai, bullet_list):
         self.tank               = tank
         self.game_objects_list  = game_objects_list
@@ -82,13 +82,13 @@ class Ai:
 
                     if math.dist(pos, obj.shape.parent.body.position) < 2:
                         self.bullet_list.append(self.tank.shoot(self.space))
-                 
+
 
         
     def move_cycle_gen(self):
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
-        """
+        """ 
         while True:
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
@@ -114,7 +114,7 @@ class Ai:
             else:
                 self.tank.turn_right()
                 yield
-
+        
             while abs(p_angle) >= MIN_ANGLE_DIF:
                 p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
                 yield

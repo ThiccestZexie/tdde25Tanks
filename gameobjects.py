@@ -143,7 +143,7 @@ class Tank(GamePhysicsObject):
 
     # Constant values for the tank, acessed like: Tank.ACCELERATION
     # You can add more constants here if needed later
-    STAT_INCREASE = 1
+    STAT_INCREASE = 5
     ACCELERATION = 0.4 
     NORMAL_MAX_SPEED = 2.0 
     FLAG_MAX_SPEED = NORMAL_MAX_SPEED * 0.5
@@ -176,7 +176,7 @@ class Tank(GamePhysicsObject):
     def stat_increase(self, value):
         self.max_speed = self.max_speed * value
         self.bullet_speed = self.bullet_speed * value
-        
+        self.acceleration = self.acceleration * value
     def respawn(self,flag):
         protection_period = Tank.TANK_PROTECTION_SEC
         self.protection_timer = protection_period   
@@ -242,8 +242,6 @@ class Tank(GamePhysicsObject):
         # Else ensure that the tank has its normal max speed
         else:
             self.max_speed = self.max_speed
-    def standing_still(self, coord, timer):
-        1
     def try_grab_flag(self, flag):
         """ Call this function to try to grab the flag, if the flag is not on other tank
             and it is close to the current tank, then the current tank will grab the flag.
@@ -271,7 +269,7 @@ class Tank(GamePhysicsObject):
         shoot_sound.play()
         self.cooldown_tracker = 0
         return bullet
-     
+        
     def drop_flag(self, flag):
         self.flag = None
         flag.is_on_tank = False

@@ -48,7 +48,7 @@ win_con_winning = True
 
 
 #   Define the current level
-current_map         = maps.map1
+current_map         = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
@@ -306,8 +306,8 @@ def collision_bullet_box(arb,space,data):
         bullet_list.remove(bullet.parent)
         if box.parent.destructable == True:
             if box.parent.health == 0:
-                # wood_sound.set_volume(0.05)
-                # wood_sound.play()
+                wood_sound.set_volume(0.05)
+                wood_sound.play()
                 explosion_object = gameobjects.Explosion(explosion, box.parent.body.position)
                 game_objects_list.append(explosion_object)
                 game_objects_list.remove(box.parent)
@@ -327,7 +327,7 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
         if tank.parent.health == 0:
             explosion_object = gameobjects.Explosion(explosion, tank.parent.body.position)
             game_objects_list.append(explosion_object) # När tanken dör läggs en explosion till
-            # hit_sound.play( )
+            hit_sound.play( )
             tank.parent.respawn(flag)
         if tank.parent.name != player_tank:
             ai_list.append(ai_creator(tank.parent))
@@ -417,7 +417,7 @@ def main_loop():
     max_rounds = 2
 
     while running:
-     
+
         #-- Handle the events
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -491,7 +491,7 @@ def main_loop():
 
         #Ai update     
         for ai in ai_list:
-           ai.decide()  
+            ai.decide()  
         if not hot_seat_multiplayer and fog_of_war == True: 
             create_fog_of_war()
         #-- Display text that updates.
@@ -506,7 +506,7 @@ def main_loop():
                 running = False
             time_limit -= 1
 
-          
+    
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
         #   Control the game framerate
