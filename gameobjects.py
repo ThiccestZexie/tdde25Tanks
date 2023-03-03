@@ -265,7 +265,7 @@ class Tank(GamePhysicsObject):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
     
         bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, self.bullet_speed, space, self.name)
-        shoot_sound = Sound("data\shooting.wav")
+        shoot_sound = Sound("data/shooting.wav")
         shoot_sound.play()
         self.cooldown_tracker = 0
         return bullet

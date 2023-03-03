@@ -65,12 +65,12 @@ background = pygame.Surface(screen.get_size())
 
 pygame.mixer.init()
 
-background_music = pygame.mixer.music.load("data\Background.wav")
+background_music = pygame.mixer.music.load("data/Background.wav")
 pygame.mixer.music.set_volume(0.05)
 pygame.mixer.music.play(-1)
 
-hit_sound = Sound("data\Boom.wav")
-wood_sound = Sound("data\woodbreak.wav")
+hit_sound = Sound("data/Boom.wav")
+wood_sound = Sound("data/woodbreak.wav")
 
 
 
