@@ -48,7 +48,7 @@ win_con_winning = True
 
 
 #   Define the current level
-current_map         = maps.map0
+current_map = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
@@ -202,6 +202,7 @@ def main_menu():
     menu=True
     selected="start"
     indexlist= 0
+    #map_selected = 0
 
     while menu:
         for event in pygame.event.get():
@@ -222,6 +223,8 @@ def main_menu():
                         selected="quit"
                     elif indexlist == 2:
                         selected = "hot_seat"
+                    elif indexlist == 3:
+                        selected = "map_selector"
 
                     
                 if event.key==pygame.K_RETURN:
@@ -237,6 +240,14 @@ def main_menu():
                             hot_seat_multiplayer = True
                         else:
                             hot_seat_multiplayer = False
+                    if selected == "map_selector":
+                        global current_map
+                        if current_map == maps.map0:
+                            current_map = maps.map1
+                        elif current_map == maps.map1:
+                            current_map = maps.map2
+                        else: current_map = maps.map0
+
 
         # Main Menu UI
         font_size = math.floor(screen_width/10)
@@ -261,15 +272,33 @@ def main_menu():
                 text_hot_seat = text_format("hot_seat: on", font, font_size -5, black)
             else:
                 text_hot_seat = text_format("hot_seat: off", font, font_size -5, black)
+        if selected == "map_selector":
+            if current_map == maps.map0:
+                text_map_selector = text_format("Map: map0", font, font_size -5, white)
+            elif current_map == maps.map1:
+                text_map_selector = text_format("Map: map1", font, font_size -5, white)
+            else: 
+                text_map_selector = text_format("Map: map2", font, font_size -5, white)
+        else:
+            if current_map == maps.map0:
+                text_map_selector = text_format("Map: map0", font, font_size -5, black)
+            elif current_map == maps.map1:
+                text_map_selector = text_format("Map: map1", font, font_size -5, black)
+            else: 
+                text_map_selector = text_format("Map: map2", font, font_size -5, black)
+        
+
         title_rect=title.get_rect()
         start_rect=text_start.get_rect()
         quit_rect=text_quit.get_rect()
         text_hot_seat_rect = text_hot_seat.get_rect()
+        text_map_selector_rect = text_map_selector.get_rect()
 
         screen.blit(title, (screen_width/2 - (title_rect[2]/2), 20))
         screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), math.floor(screen_height/6)))
         screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), (screen_height/6 + screen_height/2)/2))
         screen.blit(text_hot_seat, (screen_width/2 - (text_hot_seat_rect[2]/2), screen_height/2))
+        screen.blit(text_map_selector, (screen_width/2 - (text_map_selector_rect[2]/2), screen_height/1.5))
         pygame.display.update()
         clock.tick(FRAMERATE)
         pygame.display.set_caption("Main Menu Selection")
