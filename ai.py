@@ -79,28 +79,26 @@ class Ai:
                 if isinstance(obj.shape.parent, Tank):
                     self.bullet_list.append(self.tank.shoot(self.space))
                 elif isinstance(obj.shape.parent, Box) and obj.shape.parent.destructable == True:
-
-                    if math.dist(pos, obj.shape.parent.body.position) < 2:
-                        self.bullet_list.append(self.tank.shoot(self.space))
+                    self.bullet_list.append(self.tank.shoot(self.space))
 
 
-        
     def move_cycle_gen(self):
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
-        """ 
+        """
         while True:
             self.update_grid_pos()
             shortest_path = self.find_shortest_path()
             if len(shortest_path) <= 0:
-                self.metal_box = True
+                self.allow_metalbox = True
                 yield
                 continue
 
-            next_coord = shortest_path.popleft() + Vec2d(0.5,0.5)
+            self.allow_metalbox = False
+            next_coord = shortest_path.popleft()
             yield
-            needed_angle = angle_between_vectors(self.tank.body.position, next_coord)
-            p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
+            target_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
+            p_angle = periodic_difference_of_angles(self.tank.body.angle, target_angle)
 
             if p_angle < -math.pi:
                 self.tank.turn_left()
@@ -114,19 +112,20 @@ class Ai:
             else:
                 self.tank.turn_right()
                 yield
-        
-            while abs(p_angle) >= MIN_ANGLE_DIF:
-                p_angle = periodic_difference_of_angles(self.tank.body.angle, needed_angle)
-                yield
-            self.tank.stop_turning()
 
+            while abs(p_angle) >= MIN_ANGLE_DIF:
+                p_angle = periodic_difference_of_angles(self.tank.body.angle, target_angle)
+                yield
+
+            self.tank.stop_turning()
             self.tank.accelerate()
-            distance = self.tank.body.position.get_distance(next_coord)
+            distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
             while distance > 0.25:
-                distance = self.tank.body.position.get_distance(next_coord)
+                distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
             self.tank.stop_moving()
             yield
+
 
 
     def find_shortest_path(self):
@@ -134,28 +133,29 @@ class Ai:
             Edges are calculated as we go, using an external function.
         """
         shortest_path = []
-        paths = {self.grid_pos.int_tuple: [self.grid_pos]}
-        queue = deque()
-        visited = set()
-        visited.add(self.grid_pos.int_tuple)
-        queue.append(self.grid_pos)
+        start = self.grid_pos
+        bfs_queue = deque()
+        bfs_queue.append(start)
+        visited_nodes = set(start.int_tuple)
+        node_tree = {}
 
-        while queue:
-            node = queue.popleft()
+        while len(bfs_queue) > 0:
+            node = bfs_queue.popleft()
             if node == self.get_target_tile():
-                shortest_path = deque(paths[node.int_tuple])
-                shortest_path.popleft()
+                while node != start:
+                    shortest_path.append(node)
+                    parent = node_tree[node.int_tuple]
+                    node = parent
+                shortest_path.reverse()
                 break
-            for neighbor in self.get_tile_neighbors(node):
-                next_node = neighbor.int_tuple
-                if next_node not in visited: 
-                    queue.append(neighbor)
-                    visited.add(next_node)
-                    temp_list = paths[node.int_tuple].copy()
-                    paths[next_node] = temp_list
-                    paths[next_node].append(neighbor)
+            for neighbour in self.get_tile_neighbors(node):
+                if neighbour.int_tuple not in visited_nodes:
+                    bfs_queue.append(neighbour)
+                    node_tree[neighbour.int_tuple] = node
+                    visited_nodes.add(neighbour.int_tuple)
 
-        return shortest_path
+        return deque(shortest_path)
+
 
 
     def get_target_tile(self):

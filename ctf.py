@@ -35,7 +35,7 @@ FRAMERATE = 60
 #-- Variables
 player_tank = 0
 winning_amount = 5
-time_in_seconds = 5 
+time_in_seconds = 120 
 
 #-- Options
 hot_seat_multiplayer = False
@@ -43,12 +43,12 @@ hot_seat_multiplayer = False
 fog_of_war = False
 unfair_ai = False
 win_con_time = False
-win_con_total_rounds = False
-win_con_winning = True
+win_con_total_rounds = True
+win_con_winning = False
 
 
 #   Define the current level
-current_map = maps.map0
+current_map         = maps.map0
 #   List of all game objects
 game_objects_list   = []
 tanks_list          = []
@@ -63,14 +63,13 @@ background = pygame.Surface(screen.get_size())
 
 
 
+fail = ('data/Fail.wav')
 pygame.mixer.init()
-
-background_music = pygame.mixer.music.load("data/Background.wav")
+background_music = pygame.mixer.music.load("data\Background.wav")
 pygame.mixer.music.set_volume(0.05)
 pygame.mixer.music.play(-1)
-
-hit_sound = Sound("data/Boom.wav")
-wood_sound = Sound("data/woodbreak.wav")
+hit_sound = Sound("data\Boom.wav")
+wood_sound = Sound("data\woodbreak.wav")
 
 
 
@@ -137,10 +136,10 @@ def create_bases():
 #-- Create out of bound walls
 def create_out_of_bounds():
     body = pymunk.Body(body_type=pymunk.Body.STATIC)
-    walls  = [pymunk.Segment(body,(0,0),(current_map.width, 0 ),0),
-                pymunk.Segment(body,(0, 0), (0,current_map.height), 0),
-                pymunk.Segment(body,(current_map.width,0), (current_map.width, current_map.height), 0),
-                pymunk.Segment(body,(0,current_map.height), (current_map.width,current_map.height ), 0)]
+    walls  = [pymunk.Segment(body,(0,0),(0, current_map.width),0),
+                pymunk.Segment(body,(0, 0), (current_map.height, 0), 0),
+                pymunk.Segment(body,(0, current_map.width), (current_map.height, current_map.width), 0),
+                pymunk.Segment(body,(current_map.height, 0), (current_map.height, current_map.width), 0)]
     space.add(walls)
 
 
@@ -182,7 +181,7 @@ font = "data/good times rg.otf"
 # Game Resolution
 screen_width=  current_map.rect().size[0]
 screen_height=current_map.rect().size[1]
-# bg = pygame.image.load("data/backgroundimage.jpg").convert()
+bg = pygame.image.load("data/backgroundimage.jpg").convert()
 screen=pygame.display.set_mode(current_map.rect().size)
 # screen resolution 
 res = (screen_width,screen_height)
@@ -202,7 +201,6 @@ def main_menu():
     menu=True
     selected="start"
     indexlist= 0
-    #map_selected = 0
 
     while menu:
         for event in pygame.event.get():
@@ -210,9 +208,7 @@ def main_menu():
                 pygame.quit()
                 quit()
             if event.type==pygame.KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    quit()
+
                 if event.key==pygame.K_UP:
                     indexlist = 0
                     if indexlist== 0:
@@ -223,8 +219,6 @@ def main_menu():
                         selected="quit"
                     elif indexlist == 2:
                         selected = "hot_seat"
-                    elif indexlist == 3:
-                        selected = "map_selector"
 
                     
                 if event.key==pygame.K_RETURN:
@@ -240,14 +234,6 @@ def main_menu():
                             hot_seat_multiplayer = True
                         else:
                             hot_seat_multiplayer = False
-                    if selected == "map_selector":
-                        global current_map
-                        if current_map == maps.map0:
-                            current_map = maps.map1
-                        elif current_map == maps.map1:
-                            current_map = maps.map2
-                        else: current_map = maps.map0
-
 
         # Main Menu UI
         font_size = math.floor(screen_width/10)
@@ -272,37 +258,29 @@ def main_menu():
                 text_hot_seat = text_format("hot_seat: on", font, font_size -5, black)
             else:
                 text_hot_seat = text_format("hot_seat: off", font, font_size -5, black)
-        if selected == "map_selector":
-            if current_map == maps.map0:
-                text_map_selector = text_format("Map: map0", font, font_size -5, white)
-            elif current_map == maps.map1:
-                text_map_selector = text_format("Map: map1", font, font_size -5, white)
-            else: 
-                text_map_selector = text_format("Map: map2", font, font_size -5, white)
-        else:
-            if current_map == maps.map0:
-                text_map_selector = text_format("Map: map0", font, font_size -5, black)
-            elif current_map == maps.map1:
-                text_map_selector = text_format("Map: map1", font, font_size -5, black)
-            else: 
-                text_map_selector = text_format("Map: map2", font, font_size -5, black)
-        
-
         title_rect=title.get_rect()
         start_rect=text_start.get_rect()
         quit_rect=text_quit.get_rect()
         text_hot_seat_rect = text_hot_seat.get_rect()
-        text_map_selector_rect = text_map_selector.get_rect()
 
         screen.blit(title, (screen_width/2 - (title_rect[2]/2), 20))
         screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), math.floor(screen_height/6)))
         screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), (screen_height/6 + screen_height/2)/2))
         screen.blit(text_hot_seat, (screen_width/2 - (text_hot_seat_rect[2]/2), screen_height/2))
-        screen.blit(text_map_selector, (screen_width/2 - (text_map_selector_rect[2]/2), screen_height/1.5))
         pygame.display.update()
         clock.tick(FRAMERATE)
         pygame.display.set_caption("Main Menu Selection")
         
+def health_bar():
+    health_list = []
+    #color 
+    red = (255, 0, 0)
+    green = (0, 255, 0)
+    for i in range(0, len(tanks_list)):
+        health_x = tanks_list[i].body.position[0]*30
+        health_y = tanks_list[i].body.position[1]*30
+        health_list.append(pygame.draw.rect(screen, red, (health_x + 10, health_y + 10, 10, 10)))
+        health_list.append(pygame.draw.rect(screen, green, (health_x + 10, health_y ,tanks_list[i].hp*15, 10)))
 
 #   Copy the grass tile all over the level area
 def create_grass():
@@ -320,11 +298,7 @@ def create_flag():
     game_objects_list.append(flag)
     return flag
 
-def tank_changes(tank):
-    if tank.protection_timer > 0:
-        tank.protection_timer -= 1/FRAMERATE
-    if tank.protection_timer < 0:
-        tank.protection_timer = 0
+
 
 def collision_bullet_box(arb,space,data):
     bullet = arb.shapes[0]
@@ -344,7 +318,7 @@ def collision_bullet_box(arb,space,data):
     return False
 
 handler = space.add_collision_handler(1,3)
-handler.pre_solve = collision_bullet_box
+handler.post_solve = collision_bullet_box
 
 def collision_bullet_tank(arb, space, data): #Instead of removing tank mby teleport it back to spawn
     bullet = arb.shapes[0]
@@ -443,10 +417,10 @@ def main_loop():
     skip_update = 0
     time_limit =  time_in_seconds* FRAMERATE
     total_rounds = 0
-    max_rounds = 2
+    max_rounds = 12
 
     while running:
-
+     
         #-- Handle the events
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -516,11 +490,14 @@ def main_loop():
                 tanks.respawn(flag)
                 flag.x = current_map.flag_position[0]
                 flag.y = current_map.flag_position[1]                
-            tank_changes(tanks)
-
+            if tanks.protection_timer > 0:
+                tanks.protection_timer -= 1/FRAMERATE
+                if tanks.protection_timer < 0:
+                    tanks.protection_timer = 0
         #Ai update     
         for ai in ai_list:
             ai.decide()  
+
         if not hot_seat_multiplayer and fog_of_war == True: 
             create_fog_of_war()
         #-- Display text that updates.
@@ -535,7 +512,7 @@ def main_loop():
                 running = False
             time_limit -= 1
 
-    
+          
         #   Redisplay the entire screen (see double buffer technique)
         pygame.display.flip()
         #   Control the game framerate
@@ -544,6 +521,7 @@ def main_loop():
 main_menu()
 if hot_seat_multiplayer == True:
     player_2_tank = 1
+
 create_grass()
 create_boxes()
 create_bases()
@@ -551,3 +529,4 @@ create_tanks()
 create_out_of_bounds()
 flag = create_flag()
 main_loop()
+quit()
