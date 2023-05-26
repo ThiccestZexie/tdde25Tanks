@@ -65,11 +65,11 @@ background = pygame.Surface(screen.get_size())
 
 fail = ('data/Fail.wav')
 pygame.mixer.init()
-background_music = pygame.mixer.music.load("data\Background.wav")
+background_music = pygame.mixer.music.load("data/Background.wav")
 pygame.mixer.music.set_volume(0.05)
 pygame.mixer.music.play(-1)
-hit_sound = Sound("data\Boom.wav")
-wood_sound = Sound("data\woodbreak.wav")
+hit_sound = Sound("data/Boom.wav")
+wood_sound = Sound("data/woodbreak.wav")
 
 
 
@@ -352,7 +352,7 @@ def collision_box_tank(arb, space, data):
     if tank.parent.timer_being_stuck > FRAMERATE * 2:
         tank.parent.timer_being_stuck = 0
         if tank.parent.name != player_tank:
-            tank.parent.respawn(flag)
+            
             ai_list.append(ai_creator(tank.parent))
     return False
 
