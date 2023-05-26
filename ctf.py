@@ -332,8 +332,8 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
             game_objects_list.append(explosion_object) # När tanken dör läggs en explosion till
             hit_sound.play( )
             tank.parent.respawn(flag)
-        if tank.parent.name != player_tank:
-            ai_list.append(ai_creator(tank.parent))
+            if tank.parent.name != player_tank:
+                ai_list.append(ai_creator(tank.parent))
         if tank.parent.flag == flag: 
             gameobjects.Tank.drop_flag(tank.parent, flag)
         if bullet.parent in bullet_list:
@@ -343,6 +343,21 @@ def collision_bullet_tank(arb, space, data): #Instead of removing tank mby telep
 
 handler = space.add_collision_handler(1,2)
 handler.pre_solve = collision_bullet_tank
+
+def collision_box_tank(arb, space, data):
+    box = arb.shapes[1]
+    tank = arb.shapes[0]
+
+    tank.parent.timer_being_stuck += 1
+    if tank.parent.timer_being_stuck > FRAMERATE * 2:
+        tank.parent.timer_being_stuck = 0
+        if tank.parent.name != player_tank:
+            tank.parent.respawn(flag)
+            ai_list.append(ai_creator(tank.parent))
+    return False
+
+handler = space.add_collision_handler(2,3)
+handler.post_solve = collision_box_tank
 
 def player_1(event):
         

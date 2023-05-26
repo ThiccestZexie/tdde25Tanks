@@ -147,7 +147,7 @@ class Tank(GamePhysicsObject):
     ACCELERATION = 0.4 
     NORMAL_MAX_SPEED = 2.0 
     FLAG_MAX_SPEED = NORMAL_MAX_SPEED * 0.5
-    MAX_HP = 3
+    MAX_HP = 2
     BULLET_MAX_SPEED = 7.5
     TANK_PROTECTION_SEC = 7
     def __init__(self, x, y, orientation, sprite, space, name):
@@ -168,6 +168,7 @@ class Tank(GamePhysicsObject):
         self.start_angle = math.radians(orientation)
         self.health = Tank.MAX_HP
         self.points = 0
+        self.timer_being_stuck = 0
         self.protection_timer = 0 
     def accelerate(self):
         """ Call this function to make the tank move forward. """
@@ -180,9 +181,7 @@ class Tank(GamePhysicsObject):
     def respawn(self,flag):
         protection_period = Tank.TANK_PROTECTION_SEC
         self.protection_timer = protection_period   
-
         self.health = Tank.MAX_HP
-
         self.body.angle = self.start_angle
         self.body.position = self.start_position
         self.body.angle = self.start_angle
@@ -250,7 +249,7 @@ class Tank(GamePhysicsObject):
         if(not flag.is_on_tank):
             # Check if the tank is close to the flag
             flag_pos = pymunk.Vec2d(flag.x, flag.y)
-            if((flag_pos - self.body.position).length < 0.5):
+            if((flag_pos - self.body.position).length < 0.7):
                 # Grab the flag !
                 self.flag           = flag
                 flag.is_on_tank     = True

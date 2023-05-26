@@ -34,12 +34,13 @@ class Ai:
         self.space              = space
         self.currentmap         = currentmap
         self.flag = None
+        self.timer = 0
         self.bullet_list        = bullet_list
+        self.grid_pos = self.get_tile_of_position(self.tank.body.position)
         self.MAX_X = currentmap.width - 1 
         self.MAX_Y = currentmap.height - 1
         self.path = deque()
         self.move_cycle = self.move_cycle_gen()
-        self.update_grid_pos()
         if self.currentmap == maps.map1 or self.currentmap == maps.map2: 
             self.metal_box = True
         else:
@@ -51,17 +52,36 @@ class Ai:
         self.grid_pos = self.get_tile_of_position(self.tank.body.position)
 
     def decide(self):
-        """ Main decision function that gets called on every tick of the game. 
-            TODO: Make the ai realize it died and reset self.move_cycle
+        """Main decision function that gets called on every tick of the game.
+        Resets the AI if it keeps moving in the same direction without progress.
         """
         next(self.move_cycle)
         if self.tank.cooldown_tracker >= 60:
             self.maybe_shoot()
 
+        # Check if the AI is not making progress (e.g., driving into a wall)
+        current_tile = self.get_tile_of_position(self.tank.body.position)
+        if  self.is_stuck() and current_tile == self.grid_pos:
+            self.reset_ai()
+            self.timer = 0
+    def is_stuck(self):
+        """Check if the AI is stuck by comparing the current direction with the previous direction."""
+        if len(self.path) >= 2:
+            current_direction = self.path[1] - self.path[0]
+            previous_direction = self.grid_pos - self.path[0]
+            return current_direction == previous_direction
+        return False
+
+    def reset_ai(self):
+        """Reset the AI's move_cycle and path attributes."""
+        self.update_grid_pos()
+        self.path = deque()
+        self.move_cycle = self.move_cycle_gen()
+
     def ai_respawn(self):
-        inst_ai = Ai(self.tank, self.game_objects_list, self.tanks_list, self.space, self.currentmap, self.bullet_list)
-        del self
-        return inst_ai
+        self.tank.respawn(self.flag)
+        self.path = deque()
+        self.update_grid_pos()
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 
@@ -88,14 +108,15 @@ class Ai:
         """
         while True:
             self.update_grid_pos()
-            shortest_path = self.find_shortest_path()
-            if len(shortest_path) <= 0:
+            self.path = self.find_shortest_path()
+            if len(self.path) <= 0:
                 self.allow_metalbox = True
                 yield
                 continue
 
             self.allow_metalbox = False
-            next_coord = shortest_path.popleft()
+            next_coord = self.path.popleft()
+            print(self.tank.name, " ", self.path)
             yield
             target_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
             p_angle = periodic_difference_of_angles(self.tank.body.angle, target_angle)
@@ -120,7 +141,7 @@ class Ai:
             self.tank.stop_turning()
             self.tank.accelerate()
             distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
-            while distance > 0.25:
+            while distance > 0.3:
                 distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
                 yield
             self.tank.stop_moving()
@@ -194,8 +215,8 @@ class Ai:
         """
         neighbors = [] # Find the coordinates of the tiles' four neighbors
         coord = self.get_tile_of_position(coord_vec)
-        neighbors.append(coord + Vec2d(1,0))
         neighbors.append(coord + Vec2d(-1,0))
+        neighbors.append(coord + Vec2d(1,0))
         neighbors.append(coord + Vec2d(0,-1))
         neighbors.append(coord + Vec2d(0,1))
         return(filter(self.filter_tile_neighbors, neighbors))
