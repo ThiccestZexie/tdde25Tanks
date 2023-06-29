@@ -87,23 +87,29 @@ class Ai:
         while True:
             
             self.update_grid_pos()
+            
             next_coord = self.get_next_centered_coord(self.grid_pos)
             yield
 
             # Adjust angle
-            if abs(self.get_angle_difference(next_coord)) > math.pi/8:
+            if abs(self.get_angle_difference(next_coord)) > math.pi/6:
                 while (abs(angle_difference
                            := self.get_angle_difference(next_coord))
                        > MIN_ANGLE_DIF):
-
                     self.tank.stop_moving()
-                    if (0 <= angle_difference <= math.pi):
+                    if angle_difference < -math.pi:
                         self.tank.turn_left()
-                    elif (math.pi <= angle_difference <= 2 * math.pi):
+                        yield
+                    elif 0 > angle_difference > -math.pi:
                         self.tank.turn_right()
+                        yield
+                    elif math.pi > angle_difference > 0:
+                        self.tank.turn_left()
+                        yield
                     else:
                         self.tank.turn_right()
-                    yield
+                        yield
+
 
                 self.tank.stop_turning()
                 yield
@@ -166,10 +172,10 @@ class Ai:
         return deque(shortest_path)
     def get_next_centered_coord(self, coord: Vec2d) -> Vec2d:
         """Return a centered vector on the next coordinate."""
-        if not self.path or coord not in self.get_tile_neighbors(coord):
-            self.path = self.find_shortest_path()
-        if len(self.path) > 0:
-            return self.path.popleft() + Vec2d(0.5, 0.5)
+        print(self.path)
+        self.path = self.find_shortest_path()
+
+        return self.path.popleft() + Vec2d(0.5, 0.5)
             
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,

@@ -251,10 +251,11 @@ class Tank(GamePhysicsObject):
 
     def stat_increase(self, value):
         self.NORMAL_MAX_SPEED =  self.NORMAL_MAX_SPEED*value
-        self.FLAG_MAX_SPEED = self.FLAG_MAX_SPEED * 0.5
-        self.bullet_speed = self.bullet_speed * value
-        self.acceleration = self.acceleration * value
+        self.FLAG_MAX_SPEED = self.NORMAL_MAX_SPEED * 0.5
 
+        self.bullet_speed = self.bullet_speed * value
+        self.ACCELERATION = self.ACCELERATION * value
+        self.acceleration = self.acceleration * value
     def drop_flag(self):
         if self.flag:
             self.flag.is_on_tank = False

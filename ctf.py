@@ -61,7 +61,7 @@ background_music = pygame.mixer.music.load("data/sounds/music.wav")
 hit_sound = Sound("data/sounds/tankboom.wav")
 wood_sound = Sound("data/sounds/woodhit.wav")
 
-pygame.mixer.music.set_volume(0.05)
+pygame.mixer.music.set_volume(0.0   )
 pygame.mixer.music.play(-1)
 
 #-- create game border.. 
