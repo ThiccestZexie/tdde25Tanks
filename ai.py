@@ -7,7 +7,7 @@ from collections import defaultdict, deque
 
 # NOTE: use only 'map0' during development!
 
-MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
+MIN_ANGLE_DIF = math.radians(2) # 3 degrees, a bit more than we can turn each tick
 
 
 
@@ -94,14 +94,12 @@ class Ai:
                        > MIN_ANGLE_DIF):
 
                     self.tank.stop_moving()
-
                     if (0 <= angle_difference <= math.pi):
                         self.tank.turn_left()
                     elif (math.pi <= angle_difference <= 2 * math.pi):
                         self.tank.turn_right()
                     else:
                         self.tank.turn_right()
-
                     yield
 
                 self.tank.stop_turning()

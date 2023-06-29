@@ -230,6 +230,7 @@ def tank_update():
                 if current_round == game_settings.t_rounds:
                     running == False
             if game_settings.wincon == 3:
+                tank.points += 1
                 if tank.points == game_settings.points_to_win:
                     running == False
             else: 
@@ -314,6 +315,7 @@ handler.pre_solve = collision_bullet_box
 
 handler_tank = space.add_collision_handler(1, 2)
 handler_tank.pre_solve = collision_bullet_tank
+
 #-- Control whether the game run
 running = True
 
