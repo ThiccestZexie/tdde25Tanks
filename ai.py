@@ -30,22 +30,25 @@ class Ai:
     """ A simple ai that finds the shortest path to the target using 
     a breadth first search. Also capable of shooting other tanks and or wooden
     boxes. """
-
-    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap):
+    STAT_INCREASE = 1.5
+    def __init__(self, tank,  game_objects_list, tanks_list, space, settings):
+        self.settings = settings
         self.tank               = tank
         self.game_objects_list  = game_objects_list
         self.tanks_list         = tanks_list
         self.space              = space
-        self.currentmap         = currentmap
+        self.currentmap         = self.settings.current_map
         self.flag = None
-        self.MAX_X = currentmap.width - 1 
-        self.MAX_Y = currentmap.height - 1
+        self.MAX_X = self.currentmap.width - 1 
+        self.MAX_Y = self.currentmap.height - 1
 
         self.path = deque()
         self.move_cycle = self.move_cycle_gen()
         self.update_grid_pos()
 
         self.allow_metal = False
+        if settings.unfair_ai:
+            self.tank.stat_increase(Ai.STAT_INCREASE)
 
     def update_grid_pos(self):
         """ This should only be called in the beginning, or at the end of a move_cycle. """

@@ -3,7 +3,6 @@ import pymunk
 import os
 import math
 
-
 import images
 import maps
 class Main_menu_creator:
@@ -16,6 +15,7 @@ class Main_menu_creator:
         self.map_list = [maps.map0, maps.map1, maps.map2]
         self.current_map = self.map_list[0]
         self.create_menu()
+
 
     def create_menu(self):
         #-- Main menu

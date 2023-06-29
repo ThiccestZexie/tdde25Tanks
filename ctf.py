@@ -120,10 +120,10 @@ def create_objects():
         game_objects_list.append(tank)
     if not game_settings.hot_seat_multiplayer:
         for i in range(1, len(game_settings.current_map.start_positions)):
-            ai_list.append(ai.Ai(tanks_list[i],game_objects_list, tanks_list, space, game_settings.current_map))
+            ai_list.append(ai.Ai(tanks_list[i],game_objects_list, tanks_list, space, game_settings))
     else:
          for i in range(2, len(game_settings.current_map.start_positions)):
-            ai_list.append(ai.Ai(tanks_list[i],game_objects_list, tanks_list, space, game_settings.current_map))
+            ai_list.append(ai.Ai(tanks_list[i],game_objects_list, tanks_list, space, game_settings))
 
     #-- Create the tank bases
     for i in range(0,len(game_settings.current_map.start_positions)):   

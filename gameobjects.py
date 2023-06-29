@@ -145,7 +145,7 @@ class Tank(GamePhysicsObject):
         self.acceleration = 0 # 1 forward, 0 for stand still, -1 for backwards
         self.rotation = 0 # 1 clockwise, 0 for no rotation, -1 counter clockwise
         self.flag                 = None                      # This variable is used to access the flag object, if the current tank is carrying the flag
-        self.max_speed        = Tank.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
+        self.max_speed        = self.NORMAL_MAX_SPEED     # Impose a maximum speed to the tank
         self.start_position       = pymunk.Vec2d(x, y)        # Define the start position, which is also the position where the tank has to return with the flag
         
         #-- Implemented variables
@@ -156,7 +156,7 @@ class Tank(GamePhysicsObject):
         self.framerate = framerate
         self.points = 0
         self.hp = 3 
-
+        self.bullet_speed = 5
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
@@ -208,7 +208,7 @@ class Tank(GamePhysicsObject):
             self.flag.orientation = -math.degrees(self.body.angle)
         # Else ensure that the tank has its normal max speed
         else:
-            self.max_speed = Tank.NORMAL_MAX_SPEED
+            self.max_speed = self.NORMAL_MAX_SPEED
         if isinstance(self, Tank): # so no leaks of Nonetypes happen here
             self.shoot_cooldown -= 1
 
@@ -227,7 +227,7 @@ class Tank(GamePhysicsObject):
                 flag_cap_sound.play()
                 self.flag           = flag
                 flag.is_on_tank     = True
-                self.max_speed  = Tank.FLAG_MAX_SPEED
+                self.max_speed  = self.FLAG_MAX_SPEED
 
     def has_won(self):
         """ Check if the current tank has won (if it is has the flag and it is close to its start position). """
@@ -237,7 +237,7 @@ class Tank(GamePhysicsObject):
         """ Call this function to shoot a missile (current implementation does nothing ! you need to implement it yourself) """
         if self.shoot_cooldown < 1:
             shoot_sound.play()
-            bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, Bullet.BULLET_VELOCITY, space, self.id)
+            bullet = Bullet(self.body.position[0], self.body.position[1], math.degrees(self.body.angle), images.bullet, self.bullet_speed, space, self.id)
             self.shoot_cooldown = self.framerate
             return bullet
         
@@ -249,6 +249,12 @@ class Tank(GamePhysicsObject):
         self.body.angle = self.start_angle
         self.hp = 3 
 
+    def stat_increase(self, value):
+        self.NORMAL_MAX_SPEED =  self.NORMAL_MAX_SPEED*value
+        self.FLAG_MAX_SPEED = self.FLAG_MAX_SPEED * 0.5
+        self.bullet_speed = self.bullet_speed * value
+        self.acceleration = self.acceleration * value
+
     def drop_flag(self):
         if self.flag:
             self.flag.is_on_tank = False
@@ -256,13 +262,12 @@ class Tank(GamePhysicsObject):
 
 
 class Bullet(GamePhysicsObject):
-    BULLET_VELOCITY = 5
-    def __init__(self, x,y, orientation, sprite, max_speed,space, owner):
+    def __init__(self, x,y, orientation, sprite, max_speed, space, owner):
             super().__init__(x,y, orientation, sprite, space, True)
 
             self.body.velocity = pymunk.Vec2d(0, max_speed).rotated(self.body.angle) 
             self.shape.collision_type = 1   
-            self.max_speed = self.BULLET_VELOCITY
+            self.max_speed = max_speed
             self.sprite = sprite
             self.owner = owner
             self.shape.parent = self
@@ -272,7 +277,6 @@ class Bullet(GamePhysicsObject):
         super().update_screen(screen)
         self.body.velocity = pymunk.Vec2d(0, self.max_speed).rotated(self.body.angle) 
     def update(self):
-        """Keep velocity constant."""
         self.body.velocity = pymunk.Vec2d(0, self.max_speed).rotated(self.body.angle) 
 
 class Box(GamePhysicsObject):
