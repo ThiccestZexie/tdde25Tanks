@@ -91,7 +91,7 @@ class Ai:
             yield
 
             # Adjust angle
-            if abs(self.get_angle_difference(next_coord)) > math.pi/10:
+            if abs(self.get_angle_difference(next_coord)) > math.pi/8:
                 while (abs(angle_difference
                            := self.get_angle_difference(next_coord))
                        > MIN_ANGLE_DIF):
@@ -168,8 +168,8 @@ class Ai:
         """Return a centered vector on the next coordinate."""
         if not self.path or coord not in self.get_tile_neighbors(coord):
             self.path = self.find_shortest_path()
-
-        return self.path.popleft() + Vec2d(0.5, 0.5)
+        if len(self.path) > 0:
+            return self.path.popleft() + Vec2d(0.5, 0.5)
             
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,
