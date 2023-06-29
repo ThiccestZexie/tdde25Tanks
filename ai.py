@@ -90,12 +90,11 @@ class Ai:
             
             next_coord = self.get_next_centered_coord(self.grid_pos)
             yield
+            periodic_difference_of_angles(self.tank.body.angle,angle_between_vectors(self.tank.body.position,target_coord))
 
             # Adjust angle
-            if abs(self.get_angle_difference(next_coord)) > math.pi/6:
-                while (abs(angle_difference
-                           := self.get_angle_difference(next_coord))
-                       > MIN_ANGLE_DIF):
+            if abs( periodic_difference_of_angles(self.tank.body.angle,angle_between_vectors(self.tank.body.position,next_coord)) (next_coord)) > math.pi/6:
+                while (abs(angle_difference:= self.get_angle_difference(next_coord)) > MIN_ANGLE_DIF):
                     self.tank.stop_moving()
                     if angle_difference < -math.pi:
                         self.tank.turn_left()
@@ -134,12 +133,8 @@ class Ai:
         Returns periodic difference between the tank angle and the angle of the
         difference vector between the tank position and the target position.
         """
-        return periodic_difference_of_angles(
-                self.tank.body.angle,
-                angle_between_vectors(
-                    self.tank.body.position,
-                    target_coord)
-                )
+        return periodic_difference_of_angles(self.tank.body.angle,angle_between_vectors(self.tank.body.position,target_coord))
+    
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.
@@ -172,7 +167,6 @@ class Ai:
         return deque(shortest_path)
     def get_next_centered_coord(self, coord: Vec2d) -> Vec2d:
         """Return a centered vector on the next coordinate."""
-        print(self.path)
         self.path = self.find_shortest_path()
 
         return self.path.popleft() + Vec2d(0.5, 0.5)
