@@ -2,13 +2,14 @@ import math
 import pymunk
 from pymunk import Vec2d
 import gameobjects
+from gameobjects import Tank, Box
 from collections import defaultdict, deque
-from gameobjects import *
-import maps
 
 # NOTE: use only 'map0' during development!
 
-MIN_ANGLE_DIF = math.radians(5) # 3 degrees, a bit more than we can turn each tick
+MIN_ANGLE_DIF = math.radians(3) # 3 degrees, a bit more than we can turn each tick
+
+
 
 def angle_between_vectors(vec1, vec2):
     """ Since Vec2d operates in a cartesian coordinate space we have to
@@ -22,71 +23,45 @@ def periodic_difference_of_angles(angle1, angle2):
     return  (angle1% (2*math.pi)) - (angle2% (2*math.pi))
 
 
+
+
+
 class Ai:
     """ A simple ai that finds the shortest path to the target using 
     a breadth first search. Also capable of shooting other tanks and or wooden
     boxes. """
-    STAT_INCREASE = 5
-    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap, unfair_ai, bullet_list):
+
+    def __init__(self, tank,  game_objects_list, tanks_list, space, currentmap):
         self.tank               = tank
         self.game_objects_list  = game_objects_list
         self.tanks_list         = tanks_list
         self.space              = space
         self.currentmap         = currentmap
         self.flag = None
-        self.timer = 0
-        self.bullet_list        = bullet_list
-        self.grid_pos = self.get_tile_of_position(self.tank.body.position)
         self.MAX_X = currentmap.width - 1 
         self.MAX_Y = currentmap.height - 1
+
         self.path = deque()
         self.move_cycle = self.move_cycle_gen()
-        if self.currentmap == maps.map1 or self.currentmap == maps.map2: 
-            self.metal_box = True
-        else:
-            self.metal_box = False
-        if unfair_ai == True:
-            self.tank.stat_increase(Ai.STAT_INCREASE)
+        self.update_grid_pos()
+
+        self.allow_metal = False
+
     def update_grid_pos(self):
         """ This should only be called in the beginning, or at the end of a move_cycle. """
         self.grid_pos = self.get_tile_of_position(self.tank.body.position)
 
     def decide(self):
-        """Main decision function that gets called on every tick of the game.
-        Resets the AI if it keeps moving in the same direction without progress.
-        """
-        next(self.move_cycle)
-        if self.tank.cooldown_tracker >= 60:
+        """ Main decision function that gets called on every tick of the game. """
+        if self.tank.shoot_cooldown < 1:
             self.maybe_shoot()
 
-        # Check if the AI is not making progress (e.g., driving into a wall)
-        current_tile = self.get_tile_of_position(self.tank.body.position)
-        if  self.is_stuck() and current_tile == self.grid_pos:
-            self.reset_ai()
-            self.timer = 0
-    def is_stuck(self):
-        """Check if the AI is stuck by comparing the current direction with the previous direction."""
-        if len(self.path) >= 2:
-            current_direction = self.path[1] - self.path[0]
-            previous_direction = self.grid_pos - self.path[0]
-            return current_direction == previous_direction
-        return False
+        next(self.move_cycle)
 
-    def reset_ai(self):
-        """Reset the AI's move_cycle and path attributes."""
-        self.update_grid_pos()
-        self.path = deque()
-        self.move_cycle = self.move_cycle_gen()
-
-    def ai_respawn(self):
-        self.tank.respawn(self.flag)
-        self.path = deque()
-        self.update_grid_pos()
     def maybe_shoot(self):
         """ Makes a raycast query in front of the tank. If another tank
             or a wooden box is found, then we shoot. 
         """
-
         tank_angle = self.tank.body.angle + math.pi/2
         pos = Vec2d(self.tank.body.position)
 
@@ -97,62 +72,74 @@ class Ai:
         if hasattr(obj, 'shape'):
             if hasattr(obj.shape, 'parent'):
                 if isinstance(obj.shape.parent, Tank):
-                    self.bullet_list.append(self.tank.shoot(self.space))
+                    self.game_objects_list.append(self.tank.shoot(self.space))
                 elif isinstance(obj.shape.parent, Box) and obj.shape.parent.destructable == True:
-                    self.bullet_list.append(self.tank.shoot(self.space))
+                    self.game_objects_list.append(self.tank.shoot(self.space))
 
 
-    def move_cycle_gen(self):
+    def move_cycle_gen (self):
         """ A generator that iteratively goes through all the required steps
             to move to our goal.
-        """
+        """ 
         while True:
+            
             self.update_grid_pos()
-            self.path = self.find_shortest_path()
-            if len(self.path) <= 0:
-                self.allow_metalbox = True
-                yield
-                continue
-
-            self.allow_metalbox = False
-            next_coord = self.path.popleft()
-            print(self.tank.name, " ", self.path)
-            yield
-            target_angle = angle_between_vectors(self.tank.body.position, next_coord + Vec2d(0.5, 0.5))
-            p_angle = periodic_difference_of_angles(self.tank.body.angle, target_angle)
-
-            if p_angle < -math.pi:
-                self.tank.turn_left()
-                yield
-            elif 0 > p_angle > -math.pi:
-                self.tank.turn_right()
-                yield
-            elif math.pi > p_angle > 0:
-                self.tank.turn_left()
-                yield
-            else:
-                self.tank.turn_right()
-                yield
-
-            while abs(p_angle) >= MIN_ANGLE_DIF:
-                p_angle = periodic_difference_of_angles(self.tank.body.angle, target_angle)
-                yield
-
-            self.tank.stop_turning()
-            self.tank.accelerate()
-            distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
-            while distance > 0.3:
-                distance = self.tank.body.position.get_distance(next_coord + Vec2d(0.5, 0.5))
-                yield
-            self.tank.stop_moving()
+            next_coord = self.get_next_centered_coord(self.grid_pos)
             yield
 
+            # Adjust angle
+            if abs(self.get_angle_difference(next_coord)) > math.pi/10:
+                while (abs(angle_difference
+                           := self.get_angle_difference(next_coord))
+                       > MIN_ANGLE_DIF):
 
+                    self.tank.stop_moving()
 
+                    if (0 <= angle_difference <= math.pi):
+                        self.tank.turn_left()
+                    elif (math.pi <= angle_difference <= 2 * math.pi):
+                        self.tank.turn_right()
+                    else:
+                        self.tank.turn_right()
+
+                    yield
+
+                self.tank.stop_turning()
+                yield
+
+            # Adjust position
+            distance = self.tank.body.position.get_distance(next_coord)
+            previous, current = distance, distance
+            while previous >= current and current > 0.1:
+                self.tank.accelerate()
+                previous = current
+                current = self.tank.body.position.get_distance(next_coord)
+
+                # Check for respawn or stuck AI.
+                if current > 2:
+                    break
+                yield
+
+    def get_angle_difference(self, target_coord):
+        """
+        Return position that the tank should face to get to the target.
+
+        Returns periodic difference between the tank angle and the angle of the
+        difference vector between the tank position and the target position.
+        """
+        return periodic_difference_of_angles(
+                self.tank.body.angle,
+                angle_between_vectors(
+                    self.tank.body.position,
+                    target_coord)
+                )
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.
         """
+        # To be implemented
+
+
         shortest_path = []
         start = self.grid_pos
         bfs_queue = deque()
@@ -176,37 +163,41 @@ class Ai:
                     visited_nodes.add(neighbour.int_tuple)
 
         return deque(shortest_path)
+    def get_next_centered_coord(self, coord: Vec2d) -> Vec2d:
+        """Return a centered vector on the next coordinate."""
+        if not self.path or coord not in self.get_tile_neighbors(coord):
+            self.path = self.find_shortest_path()
 
-
-
+        return self.path.popleft() + Vec2d(0.5, 0.5)
+            
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,
             return the position of our home base.
         """
-        if self.tank.flag is not None:
+        if self.tank.flag != None:
             x, y = self.tank.start_position
         else:
-            self.get_flag() # Ensure that we have initialized it.
+            self.flag = self.get_flag() # Ensure that we have initialized it.
             x, y = self.flag.x, self.flag.y
-        return Vec2d(int(x), int(y)) 
+        return Vec2d(int(x), int(y))
 
     def get_flag(self):
         """ This has to be called to get the flag, since we don't know
             where it is when the Ai object is initialized.
         """
-        if self.flag is None:
-            # Find the flag in the game objects list
+        if self.flag == None:
+        # Find the flag in the game objects list
             for obj in self.game_objects_list:
                 if isinstance(obj, gameobjects.Flag):
                     self.flag = obj
                     break
         return self.flag
 
-
     def get_tile_of_position(self, position_vector):
         """ Converts and returns the float position of our tank to an integer position. """
         x, y = position_vector
-        return Vec2d(int(x), int(y)) 
+        return Vec2d(int(x), int(y))
+
 
     def get_tile_neighbors(self, coord_vec):
         """ Returns all bordering grid squares of the input coordinate.
@@ -226,7 +217,7 @@ class Ai:
 
         if coord[0] > self.MAX_X or coord[1] > self.MAX_Y or coord[0] < 0 or coord[1] < 0:
             return False
-        if self.metal_box == True:
+        if self.allow_metal == True:
             if self.currentmap.boxAt(coord[0],coord[1]) == 3 or self.currentmap.boxAt(coord[0],coord[1]) == 0 or self.currentmap.boxAt(coord[0],coord[1]) == 2:
                 return True
             else:
@@ -234,5 +225,7 @@ class Ai:
         if self.currentmap.boxAt(coord[0],coord[1]) == 1 or self.currentmap.boxAt(coord[0],coord[1]) == 3:
             return False
         return True
+
+
 
 SimpleAi = Ai # Legacy

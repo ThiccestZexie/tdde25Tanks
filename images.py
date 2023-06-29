@@ -3,9 +3,6 @@ import os
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
-pygame.display.init()
-pygame.display.set_mode()
-
 def load_image(file):
     """ Load an image from the data directory. """
     file = os.path.join(main_dir, 'data', file)
@@ -17,11 +14,10 @@ def load_image(file):
 
 
 TILE_SIZE = 40 # Define the default size of tiles
-
+ 
 explosion = load_image('explosion.png') # Image of an explosion
-
-grass     = load_image('backgroundimage.jpg') # Image of a grass tile
-glenn     = pygame.transform.scale(grass, (40, 40))
+ 
+grass     = load_image('grass.png') # Image of a grass tile
 
 rockbox   = load_image('rockbox.png') # Image of a rock box (wall)
 
