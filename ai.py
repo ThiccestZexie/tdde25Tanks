@@ -87,13 +87,16 @@ class Ai:
         while True:
             
             self.update_grid_pos()
-            
-            next_coord = self.get_next_centered_coord(self.grid_pos)
+            self.path = self.find_shortest_path()
+            if not self.path: # Incase empty queues get created.
+                wait = 240
+                while wait > 0:
+                    wait -= 1
+            else:
+                next_coord = self.path.popleft() + Vec2d(0.5, 0.5)
             yield
-            periodic_difference_of_angles(self.tank.body.angle,angle_between_vectors(self.tank.body.position,target_coord))
 
-            # Adjust angle
-            if abs( periodic_difference_of_angles(self.tank.body.angle,angle_between_vectors(self.tank.body.position,next_coord)) (next_coord)) > math.pi/6:
+            if abs( periodic_difference_of_angles(self.tank.body.angle, angle_between_vectors(self.tank.body.position,next_coord))) > math.pi/6:
                 while (abs(angle_difference:= self.get_angle_difference(next_coord)) > MIN_ANGLE_DIF):
                     self.tank.stop_moving()
                     if angle_difference < -math.pi:
@@ -165,11 +168,6 @@ class Ai:
                     visited_nodes.add(neighbour.int_tuple)
 
         return deque(shortest_path)
-    def get_next_centered_coord(self, coord: Vec2d) -> Vec2d:
-        """Return a centered vector on the next coordinate."""
-        self.path = self.find_shortest_path()
-
-        return self.path.popleft() + Vec2d(0.5, 0.5)
             
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,
