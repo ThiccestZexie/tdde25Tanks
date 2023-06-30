@@ -2,6 +2,7 @@ import pygame
 import pymunk
 import os
 import math
+import gameobjects
 
 import images
 import maps
@@ -128,13 +129,15 @@ class Main_menu_creator:
                         text_map = text_format("Map 2", font, font_size -5, black)
                     elif self.settings.current_map == maps.map2:
                         text_map = text_format("Map 3", font, font_size -5, black)
-                    
+                
+
+
                 title_rect=title.get_rect()
                 start_rect=text_start.get_rect()
                 quit_rect=text_quit.get_rect()
                 text_hot_seat_rect = text_hot_seat.get_rect()
                 text_map_rect = text_map.get_rect()
-
+                
                 self.screen.blit(title, (screen_width/2 - (title_rect[2]/2), 20))
                 self.screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), math.floor(screen_height/6)))
                 self.screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), (screen_height/6 + screen_height/2)/2))
@@ -146,7 +149,5 @@ class Main_menu_creator:
                 pygame.display.update()
                 self.clock.tick(self.framerate)
                 pygame.display.set_caption("Main Menu Selection")
-
         main_menu()
-
 
