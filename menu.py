@@ -26,9 +26,6 @@ class Main_menu_creator:
         white=(255, 255, 255)
         black=(0, 0, 0)
         gray=(50, 50, 50)
-        red=(255, 0, 0)
-        green=(0, 255, 0)
-        blue=(0, 0, 255)
         yellow=(255, 255, 0)
 
         # Game Fonts
@@ -38,10 +35,8 @@ class Main_menu_creator:
         # Game Resolution
         screen_width =  self.current_map.rect().size[0]
         screen_height= self.current_map.rect().size[1]
-        bg = pygame.image.load("data/grass.png").convert()
         self.screen=pygame.display.set_mode(self.current_map.rect().size)
         # screen resolution 
-        res = (screen_width,screen_height)
 
         # Text Renderer
         def text_format(message, textFont, textSize, textColor):

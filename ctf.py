@@ -136,6 +136,28 @@ def display_text(font_size, input_text, screen_pos):
     display_text = font.render(str(input_text), 1, (255,0,0))
     screen.blit(display_text, screen_pos)
 
+def score_screen():
+        screen_width =  game_settings.current_map.rect().size[0]
+        screen_height= game_settings.current_map.rect().size[1]
+        bg = pygame.image.load("data/grass.png").convert()       
+        score = True
+        while score:
+            for event in pygame.event.get():
+                if event.type== pygame.QUIT:
+                    score = False
+                if event.type ==  KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        score = False
+                        break
+            
+            screen.fill((50, 50, 50))
+            screen.blit(pygame.transform.scale(images.grass, (screen_width, screen_height)), (0, 0))
+            location = 50
+            for tanks in tanks_list:
+                display_text(50, (f"Player {tanks.id + 1}: {tanks.points}"),(screen_width/2 - 100, location) )
+                location += 50
+            pygame.display.update()
+            clock.tick(FRAMERATE) 
 
 def player_1(event):
         
@@ -147,7 +169,6 @@ def player_1(event):
 
             elif event.key == K_DOWN:
                 player_tank.decelerate()
-
             elif event.key == K_LEFT:
                 player_tank.turn_left()
 
@@ -225,14 +246,17 @@ def tank_update():
             display_text(24,tank.points, gameobjects.physics_to_display(tank.start_position))
 
         if tank.has_won():
+            tank.points += 1
+            current_round += 1
+            score_screen()
+
             if game_settings.wincon == 1:
-                current_round += 1
                 if current_round == game_settings.t_rounds:
-                    running == False
+                    running = False
             if game_settings.wincon == 3:
-                tank.points += 1
+
                 if tank.points == game_settings.points_to_win:
-                    running == False
+                    running = False
             else: 
                 running = False
         
@@ -281,7 +305,7 @@ def collision_bullet_tank(arb, space, data):
             hit_sound.play()
         game_objects_list.remove(bullet)
         space.remove(bullet.shape, bullet.body)
-        
+
     return False
 
 
@@ -392,6 +416,7 @@ while running:
     
     #   Control the game framerate
     clock.tick(FRAMERATE)
+
 # print points
 [print(f"Player {tanks.id + 1}: {tanks.points}") for tanks in tanks_list]
 
