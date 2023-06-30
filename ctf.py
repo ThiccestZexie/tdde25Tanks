@@ -272,15 +272,16 @@ def collision_bullet_tank(arb, space, data):
     tank = arb.shapes[1].parent
 
     if bullet.owner != tank.id:
-        if(tank.hp == 1):
-            game_objects_list.append(gameobjects.Explosion(images.explosion, tank.body.position ))  
-            tank.respawn()
-        else: 
-            tank.hp -= 1
-        hit_sound.play()
+        if tank.invicible_frames < 1:
+            if(tank.hp == 1):
+                game_objects_list.append(gameobjects.Explosion(images.explosion, tank.body.position ))  
+                tank.respawn()
+            else: 
+                tank.hp -= 1
+            hit_sound.play()
         game_objects_list.remove(bullet)
         space.remove(bullet.shape, bullet.body)
-
+        
     return False
 
 

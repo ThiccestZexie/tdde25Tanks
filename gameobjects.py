@@ -157,6 +157,7 @@ class Tank(GamePhysicsObject):
         self.points = 0
         self.hp = 3 
         self.bullet_speed = 5
+        self.invicible_frames = framerate * 5 # 120 * 5 as 120 is our constant framerate
     def accelerate(self):
         """ Call this function to make the tank move forward. """
         self.acceleration = 1
@@ -211,6 +212,8 @@ class Tank(GamePhysicsObject):
             self.max_speed = self.NORMAL_MAX_SPEED
         if isinstance(self, Tank): # so no leaks of Nonetypes happen here
             self.shoot_cooldown -= 1
+            if self.invicible_frames > -1:
+                self.invicible_frames -= 1
 
     
 
