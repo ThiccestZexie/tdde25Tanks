@@ -2,10 +2,10 @@ import maps
 
 class Settings:
     def __init__(self):
-        self.hot_seat_multiplayer = False
+        self.hot_seat_multiplayer = True
         self.current_map = maps.map0
         self.fog_of_war = False
-        self.unfair_ai = True
+        self.unfair_ai = False
         self.wincon = 0 # 0 = time based | 1 = total amount of rounds | 2 = score based 
 
         # win con variabels

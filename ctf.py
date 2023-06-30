@@ -61,7 +61,7 @@ background_music = pygame.mixer.music.load("data/sounds/music.wav")
 hit_sound = Sound("data/sounds/tankboom.wav")
 wood_sound = Sound("data/sounds/woodhit.wav")
 
-pygame.mixer.music.set_volume(0.0   )
+pygame.mixer.music.set_volume(0.05)
 pygame.mixer.music.play(-1)
 
 #-- create game border.. 
@@ -196,37 +196,36 @@ def player_1(event):
 def player_2(event):
     if event.type == KEYDOWN:
         if event.key == K_w:
-            tanks_list[player_two_tank].accelerate() 
+            player_two_tank.accelerate() 
 
         elif event.key == K_s:
-            tanks_list[player_two_tank].decelerate()
+            player_two_tank.decelerate()
 
         elif event.key == K_a:
-            tanks_list[player_two_tank].turn_left()
+            player_two_tank.turn_left()
 
         elif event.key == K_d:
-            tanks_list[player_two_tank].turn_right()
+            player_two_tank.turn_right()
         elif event.key == K_LSHIFT:
-            if tanks_list[player_two_tank].cooldown_tracker >= 60:
-                if player_two_tank.shoot_cooldown < 1: game_objects_list.append(player_tank.shoot(space))            
+            if player_two_tank.shoot_cooldown < 1: game_objects_list.append(player_tank.shoot(space))            
                 
         
 
     if event.type == KEYUP:
         if event.key == K_w:
-            tanks_list[player_two_tank].stop_moving() 
-            tanks_list[player_two_tank].stop_turning()
+            player_two_tank.stop_moving() 
+            player_two_tank.stop_turning()
 
         elif event.key == K_s:
-            tanks_list[player_two_tank].stop_moving() 
-            tanks_list[player_two_tank].stop_turning()
+            player_two_tank.stop_moving() 
+            player_two_tank.stop_turning()
 
         elif event.key == K_a:
-            tanks_list[player_two_tank].stop_turning()
+            player_two_tank.stop_turning()
 
         elif event.key == K_d:
-            tanks_list[player_two_tank].stop_turning()  
-def wincon():
+            player_two_tank.stop_turning()  
+def wincon_display():
         #win con rounds go out
     if game_settings.wincon == 1:
             display_text(40, (f"{current_round}/{game_settings.t_rounds}"), (screen_width/2 ,5))
@@ -404,7 +403,7 @@ while running:
     #win con rounds go out
   
 
-    wincon()
+    wincon_display()
     if game_settings.fog_of_war:
         create_fog_of_war()
     #Ai decide loop
