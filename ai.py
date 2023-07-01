@@ -2,6 +2,7 @@ import math
 import pymunk
 from pymunk import Vec2d
 import gameobjects
+import maps
 from gameobjects import Tank, Box
 from collections import defaultdict, deque
 
@@ -38,6 +39,7 @@ class Ai:
         self.tanks_list         = tanks_list
         self.space              = space
         self.currentmap         = self.settings.current_map
+
         self.flag = None
         self.MAX_X = self.currentmap.width - 1 
         self.MAX_Y = self.currentmap.height - 1
@@ -45,8 +47,10 @@ class Ai:
         self.path = deque()
         self.move_cycle = self.move_cycle_gen()
         self.update_grid_pos()
-
-        self.allow_metal = False
+        if self.currentmap == maps.map0:
+            self.allow_metal = False
+        else:
+            self.allow_metal = True
         if settings.unfair_ai:
             self.tank.stat_increase(Ai.STAT_INCREASE)
 
@@ -138,6 +142,7 @@ class Ai:
         """
         return periodic_difference_of_angles(self.tank.body.angle,angle_between_vectors(self.tank.body.position,target_coord))
     
+
     def find_shortest_path(self):
         """ A simple Breadth First Search using integer coordinates as our nodes.
             Edges are calculated as we go, using an external function.
@@ -168,6 +173,7 @@ class Ai:
                     visited_nodes.add(neighbour.int_tuple)
 
         return deque(shortest_path)
+            
             
     def get_target_tile(self):
         """ Returns position of the flag if we don't have it. If we do have the flag,

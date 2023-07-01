@@ -45,14 +45,7 @@ ai_list             = []
 player_tank = None
 player_two_tank = None
 
-# extra win con variables
-current_round = 0
 
-#-- Resize the screen to the size of the current level
-screen = pygame.display.set_mode(game_settings.current_map.rect().size)
-screen_width = screen.get_width()
-#-- Generate the background
-background = pygame.Surface(screen.get_size())
 
 #-- initialize all sounds.
 pygame.mixer.init()
@@ -225,49 +218,49 @@ def player_2(event):
 
         elif event.key == K_d:
             player_two_tank.stop_turning()  
-def wincon_display():
-        #win con rounds go out
-    if game_settings.wincon == 1:
-            display_text(40, (f"{current_round}/{game_settings.t_rounds}"), (screen_width/2 ,5))
-        #Win con timer
-    if game_settings.wincon == 0:
-            display_text(40, math.floor(game_settings.time), (screen_width/2,5))
-            if game_settings.time <= 0:
-                running = False
-            game_settings.time -= (1/FRAMERATE)
+
 def tank_update():
     #Tank update
     for tank in tanks_list:
         tank.update_screen(screen) 
         if game_settings.wincon == 3:
             display_text(24,f"{tank.points}/{game_settings.points_to_win}", gameobjects.physics_to_display(tank.start_position))
+            if tank.points == game_settings.points_to_win:
+                score_screen()
+                game_settings.running =False
         else:
             display_text(24,tank.points, gameobjects.physics_to_display(tank.start_position))
 
         if tank.has_won():
             tank.points += 1
-            current_round += 1
+            game_settings.curr_round += 1
+            tank.respawn()
+            flag.x = game_settings.current_map.flag_position[0]
+            flag.y = game_settings.current_map.flag_position[1]     
             score_screen()
-
+            
             if game_settings.wincon == 1:
-                if current_round == game_settings.t_rounds:
-                    running = False
+                if game_settings.curr_round == game_settings.t_rounds:
+                    return False
             if game_settings.wincon == 3:
-
                 if tank.points == game_settings.points_to_win:
-                    running = False
+                    return False
             else: 
-                running = False
+                return False
         
 def win_con_display():
     if game_settings.wincon == 1:
-            display_text(40, (f"{current_round}/{game_settings.t_rounds}"), (screen_width/2 ,5))
+            display_text(40, (f"{game_settings.curr_round}/{game_settings.t_rounds}"), (screen_width/2 ,5))
+            if game_settings.curr_round == game_settings.t_rounds:
+                score_screen()
+                game_settings.running = False
         #Win con timer
     if game_settings.wincon == 0:
             display_text(40, math.floor(game_settings.time), (screen_width/2,5))
-            if game_settings.time <= 0:
-                running = False
-            game_settings.time -= (1/FRAMERATE)
+            if game_settings.time <= 1:
+                score_screen()
+                game_settings.running = False
+            game_settings.time -=(1/FRAMERATE)
 def tanks_grab_flag():
     [tank.try_grab_flag(flag) for tank in tanks_list]
 def remove_explosion():
@@ -276,7 +269,19 @@ def remove_explosion():
 
 
 #----- Main Loop -----#
+#-- Resize the screen to the size of the current level
+screen = pygame.display.set_mode(game_settings.current_map.rect().size)
+screen_width = screen.get_width()
+
+#-- Generate the background
+background = pygame.Surface(screen.get_size())
+
+#Create menu
 game_menu = menu.Main_menu_creator(game_settings, FRAMERATE, screen)
+# recreate background if a new map is set.
+screen = pygame.display.set_mode(game_settings.current_map.rect().size)
+background = pygame.Surface(screen.get_size()) 
+
 create_out_of_area()
 create_objects()
 
@@ -316,10 +321,13 @@ def collision_bullet_box(arb,space,data):
         game_objects_list.remove(bullet)
     if box.destructable == True:
         if box in game_objects_list:
-            wood_sound.play()
-            game_objects_list.append(gameobjects.Explosion(images.explosion, box.body.position))
-            game_objects_list.remove(box)
-            space.remove(box.shape, box.body)
+            if box.hp == 1:
+                wood_sound.play()
+                game_objects_list.append(gameobjects.Explosion(images.explosion, box.body.position))
+                game_objects_list.remove(box)
+                space.remove(box.shape, box.body)
+            else:
+                box.hp -= 1
     return False
 
 
@@ -341,18 +349,18 @@ handler_tank = space.add_collision_handler(1, 2)
 handler_tank.pre_solve = collision_bullet_tank
 
 #-- Control whether the game run
-running = True
+game_settings.running = True
 
 skip_update = 0
 
-while running:
+while game_settings.running:
     #-- Handle the events
     for event in pygame.event.get():
             if event.type == QUIT:
-                running = False
+                game_settings.running = False
             if event.type ==  KEYDOWN:
                 if event.key == K_ESCAPE:
-                    running = False
+                    game_settings.running = False
                     break
             if game_settings.hot_seat_multiplayer == True:
                 player_1(event)
@@ -401,9 +409,6 @@ while running:
     win_con_display()
         
     #win con rounds go out
-  
-
-    wincon_display()
     if game_settings.fog_of_war:
         create_fog_of_war()
     #Ai decide loop

@@ -286,21 +286,23 @@ class Bullet(GamePhysicsObject):
 class Box(GamePhysicsObject):
     """ This class extends the GamePhysicsObject to handle box objects. """
 
-    def __init__(self, x, y, sprite, movable, space, destructable):
+    def __init__(self, x, y, sprite, movable, space, destructable, hp):
         """ It takes as arguments the coordinate of the starting position of the box (x,y) and the box model (boxmodel). """
         super().__init__(x, y, 0, sprite, space, movable)
         self.destructable = destructable
+        self.hp = hp
         if self.destructable:
             self.shape.collision_type = 3
+            
 
 def get_box_with_type(x, y, type, space):
     (x, y) = (x + 0.5, y + 0.5) # Offsets the coordinate to the center of the tile
     if type == 1: # Creates a non-movable non-destructable rockbox
-        return Box(x, y, images.rockbox, False, space, False)
+        return Box(x, y, images.rockbox, False, space, False, 999)
     if type == 2: # Creates a movable destructable woodbox
-        return Box(x, y, images.woodbox, True, space, True)
+        return Box(x, y, images.woodbox, True, space, True, 1)
     if type == 3: # Creates a movable non-destructable metalbox
-        return Box(x, y, images.metalbox, True, space, False)
+        return Box(x, y, images.metalbox, True, space, True, 3)
 
 
 
