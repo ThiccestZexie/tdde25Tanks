@@ -37,3 +37,8 @@ Innehåller en funktion som används för att ladda in bilder till spelet, samt 
 Maps
 Innehåller klassen Maps som används som mall för att skapa andra maps. Inne i filen finns 
 också maps gjorde bestående av rutnät med siffror. Där varje siffra har en sak bunden till sig.
+
+
+Andra ändringar:
+
+    För att spelet ska vara flyttande har vi valt att göra så metal lådorna går att ta sönder om deras liv går ner till 0 från 3
