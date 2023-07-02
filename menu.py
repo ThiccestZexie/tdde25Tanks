@@ -17,7 +17,6 @@ class Main_menu_creator:
         self.current_map = self.map_list[0]
         self.create_menu()
 
-
     def create_menu(self):
         #-- Main menu
         os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -51,6 +50,7 @@ class Main_menu_creator:
             selected="start"
             indexlist= 0
             map_index = 0
+            curr_map = pygame.Surface(self.settings.current_map.rect().size)
             while menu:
                 for event in pygame.event.get():
                     if event.type== pygame.QUIT:
@@ -84,14 +84,15 @@ class Main_menu_creator:
                                     self.settings.hot_seat_multiplayer = False
                             if selected == "map":
                                 map_index += 1
+                                self.screen.fill((0,0,0))
                                 if map_index == 3:
                                     map_index = 0
                                 self.settings.current_map = self.map_list[map_index]
                        # Main Menu UI
                 font_size = math.floor(screen_width/10)
                 self.screen.fill(gray)
-                self.screen.blit(pygame.transform.scale(images.grass, (screen_width, screen_height)), (0, 0))
-                title= text_format("CTF", font, font_size, yellow)
+                #self.screen.blit(pygame.transform.scale(images.metalbox, (screen_width, screen_height)), (0, 0))
+                title= text_format("Capture The Flag", font, font_size -4, yellow)
                 if  selected =="start":
                     text_start=text_format("START", font, font_size -5, white)
                 else:
@@ -133,16 +134,35 @@ class Main_menu_creator:
                 text_hot_seat_rect = text_hot_seat.get_rect()
                 text_map_rect = text_map.get_rect()
                 
+
+                curr_map = pygame.Surface(self.settings.current_map.rect().size)
+                for x in range(0, self.settings.current_map.width):
+                    for y in range(0,  self.settings.current_map.height):
+                        curr_map.blit(images.grass,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
+                for x in range(0, self.settings.current_map.width):
+                    for y in range(0,  self.settings.current_map.height):
+                        box_type  = self.settings.current_map.boxAt(x, y)
+                        if box_type == 1:
+                            curr_map.blit(images.rockbox,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
+                        if box_type == 2:
+                            curr_map.blit(images.woodbox,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
+                        if box_type == 3:
+                            curr_map.blit(images.metalbox,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
+
+                new_map = pygame.transform.scale(curr_map, (100, 80))
+
                 self.screen.blit(title, (screen_width/2 - (title_rect[2]/2), 20))
                 self.screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), math.floor(screen_height/6)))
                 self.screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), (screen_height/6 + screen_height/2)/2))
                 self.screen.blit(text_hot_seat, (screen_width/2 - (text_hot_seat_rect[2]/2), screen_height/2))
                 self.screen.blit(text_map, (screen_width/2 - (text_map_rect[2]/2), (screen_height/2) + text_map.get_height()))
+                self.screen.blit(new_map, ((math.floor(screen_width/2 - new_map.get_rect().width/2) ), (math.floor(screen_height/1.3))) )
 
 
                 
                 pygame.display.update()
                 self.clock.tick(self.framerate)
+
                 pygame.display.set_caption("Main Menu Selection")
         main_menu()
 
