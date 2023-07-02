@@ -25,10 +25,10 @@ Gameobjects
 här finns klasserna som gör att det går att modifiera pansarvagnarna och ge dem förmågor som sedan appliceras i ctf. Inne i dessa klasser finns också funktioner som exempelvis shoot, som direkt används av både spelare och ai. Sedan finns det också funktioner som tillför till spelupplevelsen och hur spelet körs. Exempelvis används update funktionen för en mängd olika saker.
 
 Settings
-Innehåller alla settings som att byta wincon spela med fog of war osv... Det är från den är modulen som spelet skapar olika saker baserad på vad man väljer.
+Innehåller alla settings som att byta wincon spela med fog of war osv... Det är från den är modulen som spelet skapar olika saker baserad på vad man väljer. Här kan man byta win cons, fog of war och alla andra inställningar som ändrar hur spelet skapas. 
 
 menu
-Här skapas menun för spelet och där man kan ändra vissa settings på spelet.
+Här skapas menun för spelet och där man kan ändra vissa settings på spelet. Till exempel här skapas menu klassen som skapar en menu där vi kan ändra på vilken map och om hot_seat_multipler är på eller inte. Desutom har vi en map preview som visar vilken map som är på för tillfället.
 
 Images
 Innehåller en funktion som används för att ladda in bilder till spelet, samt laddar in de bilder som ska användas i spelet, med hjälp av den innan nämnda funktionen.
