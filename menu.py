@@ -32,9 +32,9 @@ class Main_menu_creator:
 
 
         # Game Resolution
-        screen_width =  self.current_map.rect().size[0]
-        screen_height= self.current_map.rect().size[1]
-        self.screen=pygame.display.set_mode(self.current_map.rect().size)
+        self.screen=pygame.display.set_mode((800,800))
+        screen_width =  self.screen.get_width()
+        screen_height= self.screen.get_height()
         # screen resolution 
 
         # Text Renderer
@@ -89,7 +89,7 @@ class Main_menu_creator:
                                     map_index = 0
                                 self.settings.current_map = self.map_list[map_index]
                        # Main Menu UI
-                font_size = math.floor(screen_width/10)
+                font_size = math.floor(screen_width/12)
                 self.screen.fill(gray)
                 #self.screen.blit(pygame.transform.scale(images.metalbox, (screen_width, screen_height)), (0, 0))
                 title= text_format("Capture The Flag", font, font_size -4, yellow)
@@ -149,14 +149,14 @@ class Main_menu_creator:
                         if box_type == 3:
                             curr_map.blit(images.metalbox,  (x*images.TILE_SIZE, y*images.TILE_SIZE))
 
-                new_map = pygame.transform.scale(curr_map, (100, 80))
+                new_map = pygame.transform.scale(curr_map, (150, 125))
 
                 self.screen.blit(title, (screen_width/2 - (title_rect[2]/2), 20))
                 self.screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), math.floor(screen_height/6)))
                 self.screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), (screen_height/6 + screen_height/2)/2))
                 self.screen.blit(text_hot_seat, (screen_width/2 - (text_hot_seat_rect[2]/2), screen_height/2))
                 self.screen.blit(text_map, (screen_width/2 - (text_map_rect[2]/2), (screen_height/2) + text_map.get_height()))
-                self.screen.blit(new_map, ((math.floor(screen_width/2 - new_map.get_rect().width/2) ), (math.floor(screen_height/1.3))) )
+                self.screen.blit(new_map, ((math.floor(screen_width/2 - new_map.get_rect().width/2) ), (math.floor(screen_height/1.2))) )
 
 
                 
