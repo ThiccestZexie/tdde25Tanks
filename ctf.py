@@ -249,7 +249,7 @@ def tank_update():
                 return False
         
 def win_con_display():
-    if game_settings.wincon == 1:
+    if game_settings.wincon == 2:
             display_text(40, (f"{game_settings.curr_round}/{game_settings.t_rounds}"), (screen_width/2 ,5))
             if game_settings.curr_round == game_settings.t_rounds:
                 score_screen()
