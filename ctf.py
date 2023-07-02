@@ -200,7 +200,7 @@ def player_2(event):
         elif event.key == K_d:
             player_two_tank.turn_right()
         elif event.key == K_LSHIFT:
-            if player_two_tank.shoot_cooldown < 1: game_objects_list.append(player_tank.shoot(space))            
+            if player_two_tank.shoot_cooldown < 1: game_objects_list.append(player_two_tank.shoot(space))            
                 
         
 
@@ -250,7 +250,7 @@ def tank_update():
         
 def win_con_display():
     if game_settings.wincon == 2:
-            display_text(40, (f"{game_settings.curr_round}/{game_settings.t_rounds}"), (screen_width/2 ,5))
+            display_text(40, (f"{game_settings.curr_round}/{game_settings.t_rounds}"), (screen_width/2, 5))
             if game_settings.curr_round == game_settings.t_rounds:
                 score_screen()
                 game_settings.running = False
@@ -261,6 +261,7 @@ def win_con_display():
                 score_screen()
                 game_settings.running = False
             game_settings.time -=(1/FRAMERATE)
+            
 def tanks_grab_flag():
     [tank.try_grab_flag(flag) for tank in tanks_list]
 def remove_explosion():
